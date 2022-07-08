@@ -1,11 +1,16 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:teller/cashDepostit.dart';
 import 'package:teller/dailyCollections.dart';
 import 'package:teller/liquid.dart';
+import 'package:teller/loading.dart';
+import 'package:teller/tellercustomery.dart';
 import 'package:teller/tellerlist.dart';
 import 'package:teller/walletfund.dart';
 import 'package:teller/welcome.dart';
@@ -21,6 +26,7 @@ import 'package:teller/summaryAccount.dart';
 import 'package:teller/models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'checkbalance.dart';
+import 'open.dart';
 
 class Home extends StatefulWidget {
   int ID;
@@ -47,7 +53,7 @@ class Texts {
   }
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   getSharedData() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     String? username = sharedPreferences.getString("username");
@@ -56,6 +62,7 @@ class _HomeState extends State<Home> {
     return username;
   }
 
+  final _format = NumberFormat("#,###,000");
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   showMessage(String message,
       [Duration duration = const Duration(seconds: 4)]) {
@@ -71,16 +78,14 @@ class _HomeState extends State<Home> {
     ));
   }
 
-  // SharedPreferences share =
-  //     SharedPreferences.getInstance() as SharedPreferences;
-
-  //late SharedPreferences sharedPreferences;
   GetBalance? customerBalance;
   String? loginID = "";
+  late AnimationController anicontroller;
   bool noBalance = false;
   bool showData = false;
   bool showBalance = false;
   bool loading = false;
+  bool showloading = false;
   bool userData = true;
   //SharedPreferences sharedPreferences;
   setUser() async {
@@ -95,11 +100,25 @@ class _HomeState extends State<Home> {
       print("Welcome Seyi bro");
       print(username);
       print(password);
-
       return username;
     }
   }
 
+  logOut() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    final removeToken = sharedPreferences.remove("Token");
+    final removeT = sharedPreferences.remove("FirstInstall");
+    final removeUser = sharedPreferences.remove("username");
+    if (removeToken != null) {
+      print("Logged out ");
+      setState(() {
+        showloading = false;
+      });
+      Navigator.push(context, MaterialPageRoute(builder: (context) => Login()));
+    }
+    return removeToken;
+    //return removeT;
+  }
   // if (SharedPreferences != null)async{
   //   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
   //   String? username = sharedPreferences.getString("username");
@@ -109,45 +128,23 @@ class _HomeState extends State<Home> {
   //     loginID = username!;
   //   });
   // }
-
-  List seyi = [
-    Texts(1, "Transfer to Harley Johnson", "- \$1,000,000", "",
-        "Intrabank transfer at 2:41pm"),
-    Texts(2, "Airtime Recharge on 08137330706", "- \$200", "/",
-        "Airtime recharge at 3:11pm"),
-    Texts(3, "Transfer to Aderonke Fatunmole", "- \$500,000", "/",
-        "Airtime recharge at 10:00pm"),
-    Texts(5, "Airtel Data Recharge on 08033486660", "- \$1,000", "/",
-        "Data recharge at 11:06pm"),
-    Texts(6, "Transfer to Ebun Fatunmdoole", "- \$5,000", "/",
-        "Intrabank transfer at 2:00am"),
-    Texts(7, "Transfer to Tomilola Fatunmole", "- \$5,000", "/",
-        "Interbank transfer at 3:00am"),
-    Texts(8, "Transfer to Damilare Ajayi", "- \$5,000", "/",
-        "Interbank transfer at 7:00am"),
-    Texts(9, "Credit Alert from Ebun Fatunmole", "+ \$50,000", "/",
-        "Account credited at 9:00am"),
-    Texts(10, "Credit Alert from Denukan Network Limited", "+ \$500,000", "/",
-        "Account credited at 10:00am"),
-    Texts(11, "Credit Alert from Adeboye Samson", "+ \$5,000", "/",
-        "Account credited at 10:22am"),
-    Texts(12, "ATM Charges for month of January", "- \$300", "/",
-        "Account debited at 10:35am"),
-    Texts(13, "Stamp Duty for month of january", "- \$1,000", "/",
-        "Account debited at 11:11am"),
-    Texts(14, "Transfer to Oluwatobi Osho", "- \$300,000", "/",
-        "Interbank transfer at 11:45am"),
-    Texts(15, "Credit Alert from Chapel Of Uncommon grace", "+ \$30,000", "/",
-        "Account credited at 11:52am"),
-    Texts(16, "Credit Alert from CliqBank HQ", " + \$5000", "/",
-        "Account credited at 11:55am"),
-  ];
   @override
   void initState() {
+    anicontroller = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 2),
+    );
+    anicontroller.repeat();
     setUser();
     print("BOOS - $loginID");
     balance();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    anicontroller.dispose();
+    super.dispose();
   }
 
   @override
@@ -156,252 +153,287 @@ class _HomeState extends State<Home> {
     double _height = MediaQuery.of(context).size.height;
     print("Welcome seyi.. device width - $_width");
     print("Welcome seyi.. device height - $_height");
+    var mypaddingr = SizedBox(width: _width * 0.07436);
+    var mypaddingr2 = SizedBox(width: _width * 0.056);
+    var mypaddingrh2 = SizedBox(height: _height * 0.026 * 4);
     return Container(
       width: _width,
       height: _height,
       child: showData
           ? Scaffold(
-              key: _scaffoldKey,
-
-              backgroundColor: kBackgroundHome2,
-
+              drawer: Drawer(
+                backgroundColor: Colors.black,
+              ),
               appBar: AppBar(
+                backgroundColor: Colors.white,
                 automaticallyImplyLeading: false,
-                title: Column(
-                  children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: const <Widget>[
-                        SizedBox(
-                          width: 0,
-                        ),
-
-                        // Text(
-                        //   "HOME PAGE",
-                        //   style: TextStyle(
-                        //     color: Colors.black,
-                        //     fontSize: 15,
-                        //     fontWeight: FontWeight.bold,
-                        //   ),
-                        // ),
-                      ],
+                //centerTitle: false,
+                // leading: Icon(
+                //   Icons.menu,
+                //   color: Colors.black,
+                // ),
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: _width * .02,
                     ),
-                    const SizedBox(
-                      height: 20,
+                    Image.asset(
+                      "lib/images/ttteller.png",
+                      height: _height * .04,
                     ),
-                    Container(
-                      width: _width * .75,
-                      height: _height * .125,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                        // ignore: prefer_const_constructors
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          // 10% of the width, so there are ten blinds.
-                          // ignore: prefer_const_literals_to_create_immutables
-                          colors: <Color>[
-                            kPrimaryColor,
-                            kSecondaryColor,
-                          ], // red to yellow
-                          tileMode: TileMode
-                              .repeated, // repeats the gradient over the canvas
-                        ),
-                        // ignore: prefer_const_literals_to_create_immutables
-                        boxShadow: [
-                          const BoxShadow(
-                            color: Colors.blue,
-                            offset: Offset.zero,
-                            blurStyle: BlurStyle.outer,
-                            blurRadius: 2.0,
-                            spreadRadius: 0.0,
-                          ),
-                        ],
+                    Text(
+                      "Dashboard",
+                      style: GoogleFonts.openSans(
+                        fontSize: _width * .062,
+                        fontWeight: FontWeight.w700,
+                        color: kPrimaryColor,
                       ),
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.pushNamed(context, '/homee');
-                        },
-                        child: Column(
-                          // ignore: prefer_const_literals_to_create_immutables
-                          children: [
-                            const SizedBox(
-                              height: 17,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                // ignore: prefer_const_constructors
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                userData
-                                    ?
-                                    //final _user = {sharedPreferences.get("username")};
-
-                                    const Text(
-                                        "               Welcome Teller  ",
-                                        style: TextStyle(
-                                          fontFamily: "OpenSans",
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 20,
-                                          letterSpacing: 0,
-                                          color: Colors.white,
-                                        ),
-                                      )
-                                    : const Text("There was an error")
-                              ],
-                            ),
-                            // ignore: prefer_const_constructors
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                // ignore: prefer_const_constructors
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Column(
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: const [
-                                        Center(
-                                            // child: Text(
-                                            //   "                           System Date : May 4, 2022",
-                                            //   style: TextStyle(
-                                            //     fontFamily: "OpenSans",
-                                            //     fontWeight: FontWeight.bold,
-                                            //     fontSize: 12,
-                                            //   ),
-                                            // ),
-                                            ),
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: const [
-                                        // Text(
-                                        //   "                            Calendar Date : May 5, 2022",
-                                        //   style: TextStyle(
-                                        //     fontFamily: "OpenSans",
-                                        //     fontWeight: FontWeight.bold,
-                                        //     fontSize: 12,
-                                        //   ),
-                                        // ),
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        noBalance
-                                            ? FutureBuilder(
-                                                future: getSharedData(),
-                                                builder: (context, snapshot) {
-                                                  var _loginuser =
-                                                      snapshot.data!;
-                                                  print(
-                                                      "Ararayghsb - $_loginuser");
-                                                  if (snapshot.hasData) {
-                                                    return Text(
-                                                      "                 Teller ID : ${_loginuser.toString()}",
-                                                      style: const TextStyle(
-                                                        color: Colors.white,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 14,
-                                                        fontFamily: "OpenSans",
-                                                        letterSpacing: 1.0,
-                                                        //fontWeight: FontWeight.bold,
-                                                      ),
-                                                    );
-                                                  } else
-                                                    return CircularProgressIndicator();
-                                                },
-                                              )
-                                            : Text(
-                                                "            Teller ID : ${customerBalance!.loginUserId}",
-                                                style: const TextStyle(
-                                                  fontFamily: "OpenSans",
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 14,
-                                                  letterSpacing: 1.0,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                      ],
-                                    ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    noBalance
-                                        ? const Text(
-                                            "                 Till Balance : ₦0.00",
-                                            style: TextStyle(
-                                              fontFamily: "OpenSans",
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14,
-                                              letterSpacing: 1.0,
-                                              color: Colors.white,
-                                            ),
-                                          )
-                                        : Text(
-                                            "                 Till Balance : ₦${customerBalance!.currentbalance}0",
-                                            style: const TextStyle(
-                                              fontFamily: "OpenSans",
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14,
-                                              color: Colors.white,
-                                              letterSpacing: 0.5,
-                                            ),
-                                          ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 25,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: const [
-                        Text(
-                          "Menu",
-                          style: TextStyle(
-                            fontFamily: "OpenSans",
-                            color: kPrimaryColor,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
                     ),
                   ],
                 ),
-                toolbarHeight: 200,
-                backgroundColor: kBackgroundHome2,
-                elevation: 0.0,
-                // ignore: prefer_const_constructors
-                shape: RoundedRectangleBorder(
-                  // ignore: prefer_const_constructors
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: const Radius.circular(15),
-                    bottomRight: const Radius.circular(15),
-                  ),
-                ),
               ),
+              key: _scaffoldKey,
+              //backgroundColor: kBackgroundHome2,
+              // appBar: AppBar(
+              //   automaticallyImplyLeading: false,
+              //   title: Column(
+              //     children: <Widget>[
+              //       Row(
+              //         mainAxisAlignment: MainAxisAlignment.center,
+              //         crossAxisAlignment: CrossAxisAlignment.center,
+              //         children: const <Widget>[
+              //           SizedBox(
+              //             width: 0,
+              //           ),
+              //           // Text(
+              //           //   "HOME PAGE",
+              //           //   style: TextStyle(
+              //           //     color: Colors.black,
+              //           //     fontSize: 15,
+              //           //     fontWeight: FontWeight.bold,
+              //           //   ),
+              //           // ),
+              //         ],
+              //       ),
+              //       SizedBox(
+              //         height: _height * .05,
+              //       ),
+              //       Container(
+              //         width: _width * .75,
+              //         height: _height * .130,
+              //         decoration: BoxDecoration(
+              //           borderRadius: BorderRadius.circular(0),
+              //           // ignore: prefer_const_constructors
+              //           gradient: LinearGradient(
+              //             begin: Alignment.topLeft,
+              //             end: Alignment.bottomRight,
+              //             // 10% of the width, so there are ten blinds.
+              //             // ignore: prefer_const_literals_to_create_immutables
+              //             colors: <Color>[
+              //               kPrimaryColor,
+              //               kSecondaryColor,
+              //             ], // red to yellow
+              //             tileMode: TileMode
+              //                 .repeated, // repeats the gradient over the canvas
+              //           ),
+              //           // ignore: prefer_const_literals_to_create_immutables
+              //           boxShadow: [
+              //             const BoxShadow(
+              //               color: Colors.blue,
+              //               offset: Offset.zero,
+              //               blurStyle: BlurStyle.outer,
+              //               blurRadius: 2.0,
+              //               spreadRadius: 0.0,
+              //             ),
+              //           ],
+              //         ),
+              //         child: InkWell(
+              //           onTap: () {
+              //             // Navigator.pushNamed(context, '/homee');
+              //           },
+              //           child: SingleChildScrollView(
+              //             scrollDirection: Axis.vertical,
+              //             child: Column(
+              //               // ignore: prefer_const_literals_to_create_immutables
+              //               children: [
+              //                 const SizedBox(
+              //                   height: 17,
+              //                 ),
+              //                 Row(
+              //                   mainAxisAlignment: MainAxisAlignment.start,
+              //                   children: [
+              //                     // ignore: prefer_const_constructors
+              //                     SizedBox(
+              //                       width: 10,
+              //                     ),
+              //                     userData
+              //                         ?
+              //                         //final _user = {sharedPreferences.get("username")};
+              //                         const Text(
+              //                             "               Welcome Teller  ",
+              //                             style: TextStyle(
+              //                               fontFamily: "OpenSans",
+              //                               fontWeight: FontWeight.bold,
+              //                               fontSize: 20,
+              //                               letterSpacing: 0,
+              //                               color: Colors.white,
+              //                             ),
+              //                           )
+              //                         : const Text("There was an error")
+              //                   ],
+              //                 ),
+              //                 // ignore: prefer_const_constructors
+              //                 SizedBox(
+              //                   height: 10,
+              //                 ),
+              //                 Row(
+              //                   mainAxisAlignment: MainAxisAlignment.start,
+              //                   children: [
+              //                     // ignore: prefer_const_constructors
+              //                     SizedBox(
+              //                       width: 10,
+              //                     ),
+              //                     Column(
+              //                       children: [
+              //                         Row(
+              //                           mainAxisAlignment:
+              //                               MainAxisAlignment.start,
+              //                           children: const [
+              //                             Center(
+              //                                 // child: Text(
+              //                                 //   "                           System Date : May 4, 2022",
+              //                                 //   style: TextStyle(
+              //                                 //     fontFamily: "OpenSans",
+              //                                 //     fontWeight: FontWeight.bold,
+              //                                 //     fontSize: 12,
+              //                                 //   ),
+              //                                 // ),
+              //                                 ),
+              //                           ],
+              //                         ),
+              //                         Row(
+              //                           mainAxisAlignment:
+              //                               MainAxisAlignment.start,
+              //                           children: const [
+              //                             // Text(
+              //                             //   "                            Calendar Date : May 5, 2022",
+              //                             //   style: TextStyle(
+              //                             //     fontFamily: "OpenSans",
+              //                             //     fontWeight: FontWeight.bold,
+              //                             //     fontSize: 12,
+              //                             //   ),
+              //                             // ),
+              //                           ],
+              //                         ),
+              //                         Row(
+              //                           mainAxisAlignment:
+              //                               MainAxisAlignment.start,
+              //                           crossAxisAlignment:
+              //                               CrossAxisAlignment.start,
+              //                           children: [
+              //                             noBalance
+              //                                 ? FutureBuilder(
+              //                                     future: getSharedData(),
+              //                                     builder: (context, snapshot) {
+              //                                       var _loginuser =
+              //                                           snapshot.data ?? null;
+              //                                       print(
+              //                                           "Ararayghsb - $_loginuser");
+              //                                       if (snapshot.hasData) {
+              //                                         return Text(
+              //                                           "                 Teller ID : ${_loginuser.toString()}",
+              //                                           style: const TextStyle(
+              //                                             color: Colors.white,
+              //                                             fontWeight:
+              //                                                 FontWeight.bold,
+              //                                             fontSize: 14,
+              //                                             fontFamily:
+              //                                                 "OpenSans",
+              //                                             letterSpacing: 1.0,
+              //                                             //fontWeight: FontWeight.bold,
+              //                                           ),
+              //                                         );
+              //                                       } else
+              //                                         return CircularProgressIndicator();
+              //                                     },
+              //                                   )
+              //                                 : Text(
+              //                                     "            Teller ID : ${customerBalance!.loginUserId}",
+              //                                     style: const TextStyle(
+              //                                       fontFamily: "OpenSans",
+              //                                       fontWeight: FontWeight.bold,
+              //                                       fontSize: 14,
+              //                                       letterSpacing: 1.0,
+              //                                       color: Colors.white,
+              //                                     ),
+              //                                   ),
+              //                           ],
+              //                         ),
+              //                         const SizedBox(
+              //                           height: 10,
+              //                         ),
+              //                         noBalance
+              //                             ? const Text(
+              //                                 "                 Till Balance : ₦0.00",
+              //                                 style: TextStyle(
+              //                                   fontFamily: "OpenSans",
+              //                                   fontWeight: FontWeight.bold,
+              //                                   fontSize: 14,
+              //                                   letterSpacing: 1.0,
+              //                                   color: Colors.white,
+              //                                 ),
+              //                               )
+              //                             : Text(
+              //                                 "                 Till Balance : ₦${_format.format(customerBalance!.currentbalance)}",
+              //                                 style: const TextStyle(
+              //                                   fontFamily: "OpenSans",
+              //                                   fontWeight: FontWeight.bold,
+              //                                   fontSize: 14,
+              //                                   color: Colors.white,
+              //                                   letterSpacing: 0.5,
+              //                                 ),
+              //                               ),
+              //                       ],
+              //                     ),
+              //                   ],
+              //                 ),
+              //               ],
+              //             ),
+              //           ),
+              //         ),
+              //       ),
+              //       const SizedBox(
+              //         height: 25,
+              //       ),
+              //       Row(
+              //         mainAxisAlignment: MainAxisAlignment.start,
+              //         children: const [
+              //           Text(
+              //             "Menu",
+              //             style: TextStyle(
+              //               fontFamily: "OpenSans",
+              //               color: kPrimaryColor,
+              //               fontSize: 18,
+              //               fontWeight: FontWeight.bold,
+              //             ),
+              //           ),
+              //         ],
+              //       ),
+              //     ],
+              //   ),
+              //   toolbarHeight: 200,
+              //   backgroundColor: kBackgroundHome2,
+              //   elevation: 0.0,
+              //   // ignore: prefer_const_constructors
+              //   shape: RoundedRectangleBorder(
+              //     // ignore: prefer_const_constructors
+              //     borderRadius: BorderRadius.only(
+              //       bottomLeft: const Radius.circular(15),
+              //       bottomRight: const Radius.circular(15),
+              //     ),
+              //   ),
+              // ),
               // ignore: prefer_const_constructors
               // body: ListView.builder(
               //   itemCount: seyi.length,
@@ -474,205 +506,586 @@ class _HomeState extends State<Home> {
               //     );
               //   },
               // ),
-
               body: SingleChildScrollView(
                 scrollDirection: Axis.vertical,
                 child: Column(
                   children: <Widget>[
-                    const SizedBox(
-                      height: 20,
+                    // Row(
+                    //   children: [
+                    //     mypaddingr,
+                    //     Text(
+                    //       "Dashboard",
+                    //       style: GoogleFonts.poppins(
+                    //         fontSize: _width * .062,
+                    //         fontWeight: FontWeight.w600,
+                    //         color: kPrimaryColor,
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
+                    SizedBox(
+                      height: _height * .02,
                     ),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: const [
-                        // Text(
-                        //   "  MENU",
-                        //   style: TextStyle(
-                        //     color: kPrimaryColor,
-                        //     fontSize: 16,
-                        //     fontWeight: FontWeight.bold,
-                        //     letterSpacing: 2.0,
-                        //   ),
-                        // ),
+                      children: [
+                        mypaddingr,
+                        Container(
+                          width: _width * .85,
+                          height: _height * .18,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  kPrimaryColor,
+                                  Color(0xff292669),
+                                ]),
+                            //color: kprimarycolor,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: SingleChildScrollView(
+                            child: Column(children: [
+                              SizedBox(
+                                height: _height * .017,
+                              ),
+                              //mypaddingrh,
+                              Row(
+                                children: [
+                                  SizedBox(width: _width * .75),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  mypaddingr2,
+                                  Image.asset(
+                                    "lib/images/ttteller.png",
+                                    height: _height * .047,
+                                    width: _width * .103,
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: _height * .005,
+                              ),
+                              Row(
+                                children: [
+                                  mypaddingr2,
+                                  Text(
+                                    "Welcome Teller : ",
+                                    style: GoogleFonts.poppins(
+                                      color: Color(0xffE9EDF7),
+                                      fontSize: _width * .038,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                  noBalance
+                                      ? FutureBuilder(
+                                          future: getSharedData(),
+                                          builder: (context, snapshot) {
+                                            var _loginuser =
+                                                snapshot.data ?? null;
+                                            print("Ararayghsb - $_loginuser");
+                                            if (snapshot.hasData) {
+                                              return Text(
+                                                "${_loginuser.toString()}",
+                                                style: GoogleFonts.poppins(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: _width * .038,
+                                                  //fontFamily: "OpenSans",
+                                                  letterSpacing: 1.0,
+                                                  //fontWeight: FontWeight.bold,
+                                                ),
+                                              );
+                                            } else
+                                              return CircularProgressIndicator();
+                                          },
+                                        )
+                                      : Text(
+                                          customerBalance!.loginUserId
+                                              .toString(),
+                                          style: GoogleFonts.poppins(
+                                            color: Colors.white,
+                                            fontSize: _width * .038,
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: 1.0,
+                                          ),
+                                        ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: _height * .002,
+                              ),
+                              Row(
+                                children: [
+                                  mypaddingr2,
+                                  noBalance
+                                      ? Text(
+                                          "N0.00",
+                                          style: GoogleFonts.openSans(
+                                            color: Colors.white,
+                                            fontSize: _width * .087,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        )
+                                      : Text(
+                                          "N${_format.format(customerBalance!.currentbalance)}.00",
+                                          style: GoogleFonts.openSans(
+                                            color: Colors.white,
+                                            fontSize: _width * .087,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                ],
+                              ),
+                            ]),
+                          ),
+                        ),
                       ],
                     ),
+                    // Row(
+                    //   mainAxisAlignment: MainAxisAlignment.start,
+                    //   children: const [
+                    //     // Text(
+                    //     //   "  MENU",
+                    //     //   style: TextStyle(
+                    //     //     color: kPrimaryColor,
+                    //     //     fontSize: 16,
+                    //     //     fontWeight: FontWeight.bold,
+                    //     //     letterSpacing: 2.0,
+                    //     //   ),
+                    //     // ),
+                    //   ],
+                    // ),
                     const SizedBox(
                       height: 20,
                     ),
-                    Container(
-                      height: 50,
-                      width: 380,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        // ignore: prefer_const_constructors
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          // 10% of the width, so there are ten blinds.
-                          // ignore: prefer_const_literals_to_create_immutables
-                          colors: <Color>[
-                            kPrimaryColor,
-                            kSecondaryColor,
-                          ], // red to yellow
-                          tileMode: TileMode
-                              .repeated, // repeats the gradient over the canvas
-                        ),
-                      ),
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => Teller()));
-                        },
-                        child: Row(
-                          children: const <Widget>[
-                            SizedBox(
-                              width: 20,
-                            ),
-                            Icon(
-                              Icons.qr_code,
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              "Teller Profile",
-                              style: TextStyle(
-                                fontFamily: "OpenSans",
-                                fontWeight: FontWeight.w800,
-                                fontSize: 16,
-                                color: Colors.white,
+                    // Container(
+                    //   height: 50,
+                    //   width: 380,
+                    //   decoration: BoxDecoration(
+                    //     borderRadius: BorderRadius.circular(10),
+                    //     // ignore: prefer_const_constructors
+                    //     gradient: LinearGradient(
+                    //       begin: Alignment.topLeft,
+                    //       end: Alignment.bottomRight,
+                    //       // 10% of the width, so there are ten blinds.
+                    //       // ignore: prefer_const_literals_to_create_immutables
+                    //       colors: <Color>[
+                    //         kPrimaryColor,
+                    //         kSecondaryColor,
+                    //       ], // red to yellow
+                    //       tileMode: TileMode
+                    //           .repeated, // repeats the gradient over the canvas
+                    //     ),
+                    //   ),
+                    //   child: InkWell(
+                    //     onTap: () {
+                    //       Navigator.push(
+                    //           context,
+                    //           MaterialPageRoute(
+                    //               builder: (context) => Teller()));
+                    //     },
+                    //     child: Row(
+                    //       children: const <Widget>[
+                    //         SizedBox(
+                    //           width: 20,
+                    //         ),
+                    //         Icon(
+                    //           Icons.qr_code,
+                    //         ),
+                    //         SizedBox(
+                    //           width: 10,
+                    //         ),
+                    //         Text(
+                    //           "Teller Profile",
+                    //           style: TextStyle(
+                    //             fontFamily: "OpenSans",
+                    //             fontWeight: FontWeight.w800,
+                    //             fontSize: 16,
+                    //             color: Colors.white,
+                    //           ),
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: _width * .05),
+                      child: Column(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const WalletFund()));
+                            },
+                            child: Container(
+                              width: _width * .9,
+                              height: _height * .065,
+                              decoration: BoxDecoration(
+                                color: Color(0xfffffff),
+                                borderRadius: BorderRadius.circular(5),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black26,
+                                    blurStyle: BlurStyle.outer,
+                                    blurRadius: 10,
+                                    spreadRadius: 0,
+                                    offset: Offset.zero,
+                                  ),
+                                ],
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.fromLTRB(
+                                    _width * .06,
+                                    _height * .0157,
+                                    _width * .06,
+                                    _height * .0157),
+                                child: Center(
+                                    child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Request Funds",
+                                      style: GoogleFonts.poppins(
+                                        fontSize: _height * .015,
+                                        fontWeight: FontWeight.w400,
+                                        color: kPrimaryColor,
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.request_quote,
+                                      color: kPrimaryColor,
+                                    ),
+                                  ],
+                                )),
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(
-                      height: 5,
+
+                    SizedBox(
+                      height: _height * .01,
                     ),
-                    Container(
-                      height: 50,
-                      width: 380,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        // ignore: prefer_const_constructors
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          // 10% of the width, so there are ten blinds.
-                          // ignore: prefer_const_literals_to_create_immutables
-                          colors: <Color>[
-                            kPrimaryColor,
-                            kSecondaryColor,
-                          ], // red to yellow
-                          tileMode: TileMode
-                              .repeated, // repeats the gradient over the canvas
-                        ),
-                      ),
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const WalletFund()));
-                        },
-                        child: Row(
-                          children: const <Widget>[
-                            SizedBox(
-                              width: 20,
-                            ),
-                            Icon(
-                              Icons.wifi,
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              "Request Fund",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.white,
+                    // Container(
+                    //   height: 50,
+                    //   width: 380,
+                    //   decoration: BoxDecoration(
+                    //     borderRadius: BorderRadius.circular(10),
+                    //     // ignore: prefer_const_constructors
+                    //     gradient: LinearGradient(
+                    //       begin: Alignment.topLeft,
+                    //       end: Alignment.bottomRight,
+                    //       // 10% of the width, so there are ten blinds.
+                    //       // ignore: prefer_const_literals_to_create_immutables
+                    //       colors: <Color>[
+                    //         kPrimaryColor,
+                    //         kSecondaryColor,
+                    //       ], // red to yellow
+                    //       tileMode: TileMode
+                    //           .repeated, // repeats the gradient over the canvas
+                    //     ),
+                    //   ),
+                    //   child: InkWell(
+                    //     onTap: () {
+                    //       Navigator.push(
+                    //           context,
+                    //           MaterialPageRoute(
+                    //               builder: (context) => const WalletFund()));
+                    //     },
+                    //     child: Row(
+                    //       children: <Widget>[
+                    //         const SizedBox(
+                    //           width: 20,
+                    //         ),
+                    //         const Icon(
+                    //           Icons.request_quote,
+                    //           color: Colors.white,
+                    //         ),
+                    //         const SizedBox(
+                    //           width: 10,
+                    //         ),
+                    //         Text(
+                    //           "Request Fund",
+                    //           style: GoogleFonts.poppins(
+                    //             fontWeight: FontWeight.w800,
+                    //             fontSize: 16,
+                    //             color: Colors.white,
+                    //             //fontWeight: FontWeight.bold,
+                    //             //fontFamily: "OpenSans",
+                    //           ),
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
+                    // const SizedBox(
+                    //   height: 5,
+                    // ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: _width * .05),
+                      child: Column(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          TellerCustomery(widget.ID)));
+                            },
+                            child: Container(
+                              width: _width * .9,
+                              height: _height * .065,
+                              decoration: BoxDecoration(
+                                color: Color(0xfffffff),
+                                borderRadius: BorderRadius.circular(5),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black26,
+                                    blurStyle: BlurStyle.outer,
+                                    blurRadius: 10,
+                                    spreadRadius: 0,
+                                    offset: Offset.zero,
+                                  ),
+                                ],
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.fromLTRB(
+                                    _width * .06,
+                                    _height * .0157,
+                                    _width * .06,
+                                    _height * .0157),
+                                child: Center(
+                                    child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Teller Customers",
+                                      style: GoogleFonts.poppins(
+                                        fontSize: _height * .015,
+                                        fontWeight: FontWeight.w400,
+                                        color: kPrimaryColor,
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.person,
+                                      color: kPrimaryColor,
+                                    ),
+                                  ],
+                                )),
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(
-                      height: 5,
+
+                    SizedBox(
+                      height: _height * .01,
                     ),
+                    // Container(
+                    //   height: 50,
+                    //   width: 380,
+                    //   decoration: BoxDecoration(
+                    //     borderRadius: BorderRadius.circular(10),
+                    //     // ignore: prefer_const_constructors
+                    //     gradient: LinearGradient(
+                    //       begin: Alignment.topLeft,
+                    //       end: Alignment.bottomRight,
+                    //       // 10% of the width, so there are ten blinds.
+                    //       // ignore: prefer_const_literals_to_create_immutables
+                    //       colors: <Color>[
+                    //         kPrimaryColor,
+                    //         kSecondaryColor,
+                    //       ], // red to yellow
+                    //       tileMode: TileMode
+                    //           .repeated, // repeats the gradient over the canvas
+                    //     ),
+                    //   ),
+                    //   child: InkWell(
+                    //     onTap: () {
+                    //       Navigator.push(
+                    //           context,
+                    //           MaterialPageRoute(
+                    //               builder: (context) =>
+                    //                   TellerCustomery(widget.ID)));
+                    //     },
+                    //     child: Row(
+                    //       children: <Widget>[
+                    //         const SizedBox(
+                    //           width: 20,
+                    //         ),
+                    //         const Icon(
+                    //           Icons.person,
+                    //           color: Colors.white,
+                    //         ),
+                    //         const SizedBox(
+                    //           width: 10,
+                    //         ),
+                    //         Text(
+                    //           "Teller Customers",
+                    //           style: GoogleFonts.poppins(
+                    //             fontWeight: FontWeight.w800,
+                    //             fontSize: 16,
+                    //             color: Colors.white,
+                    //             //fontWeight: FontWeight.bold,
+                    //             //fontFamily: "OpenSans",
+                    //           ),
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
+                    // const SizedBox(
+                    //   height: 5,
+                    // ),
+
                     FutureBuilder(
                       future: getSharedData(),
                       builder: (context, snapshot) {
-                        var _loginuser = snapshot.data!;
+                        var _loginuser = snapshot.data ?? null;
                         print("Ararayghsb - $_loginuser");
                         if (snapshot.hasData) {
-                          return Container(
-                              width: 380,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                // ignore: prefer_const_constructors
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  // 10% of the width, so there are ten blinds.
-                                  // ignore: prefer_const_literals_to_create_immutables
-                                  colors: <Color>[
-                                    kPrimaryColor,
-                                    kSecondaryColor,
-                                  ], // red to yellow
-                                  tileMode: TileMode
-                                      .repeated, // repeats the gradient over the canvas
+                          return Padding(
+                            padding:
+                                EdgeInsets.symmetric(horizontal: _width * .05),
+                            child: Column(
+                              children: [
+                                InkWell(
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => TellerList(
+                                                int.parse(
+                                                    _loginuser.toString()))));
+                                  },
+                                  child: Container(
+                                    width: _width * .9,
+                                    height: _height * .065,
+                                    decoration: BoxDecoration(
+                                      color: Color(0xfffffff),
+                                      borderRadius: BorderRadius.circular(5),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black26,
+                                          blurStyle: BlurStyle.outer,
+                                          blurRadius: 10,
+                                          spreadRadius: 0,
+                                          offset: Offset.zero,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Padding(
+                                      padding: EdgeInsets.fromLTRB(
+                                          _width * .06,
+                                          _height * .0157,
+                                          _width * .06,
+                                          _height * .0157),
+                                      child: Center(
+                                          child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            "List of Requests",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: _height * .015,
+                                              fontWeight: FontWeight.w400,
+                                              color: kPrimaryColor,
+                                            ),
+                                          ),
+                                          Icon(
+                                            Icons.list,
+                                            color: kPrimaryColor,
+                                          ),
+                                        ],
+                                      )),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              child: InkWell(
-                                onTap: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => TellerList(
-                                              int.parse(
-                                                  _loginuser.toString()))));
-                                },
-                                child: Row(
-                                  children: const <Widget>[
-                                    SizedBox(
-                                      width: 20,
-                                    ),
-                                    Icon(
-                                      Icons.qr_code,
-                                    ),
-                                    SizedBox(
-                                      width: 10,
-                                    ),
-                                    Text(
-                                      "Teller Request List",
-                                      style: TextStyle(
-                                        fontFamily: "OpenSans",
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 16,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ));
+                              ],
+                            ),
+                          );
+
+                          // SizedBox(
+                          //   height: _height * .02,
+                          // ),
+
+                          //  Container(
+                          //     width: 380,
+                          //     height: 50,
+                          //     decoration: BoxDecoration(
+                          //       borderRadius: BorderRadius.circular(10),
+                          //       // ignore: prefer_const_constructors
+                          //       gradient: LinearGradient(
+                          //         begin: Alignment.topLeft,
+                          //         end: Alignment.bottomRight,
+                          //         // 10% of the width, so there are ten blinds.
+                          //         // ignore: prefer_const_literals_to_create_immutables
+                          //         colors: <Color>[
+                          //           kPrimaryColor,
+                          //           kSecondaryColor,
+                          //         ], // red to yellow
+                          //         tileMode: TileMode
+                          //             .repeated, // repeats the gradient over the canvas
+                          //       ),
+                          //     ),
+                          //     child: InkWell(
+                          //       onTap: () {
+                          //         Navigator.push(
+                          //             context,
+                          //             MaterialPageRoute(
+                          //                 builder: (context) => TellerList(
+                          //                     int.parse(
+                          //                         _loginuser.toString()))));
+                          //       },
+                          //       child: Row(
+                          //         children: <Widget>[
+                          //           const SizedBox(
+                          //             width: 20,
+                          //           ),
+                          //           const Icon(
+                          //             Icons.list,
+                          //             color: Colors.white,
+                          //           ),
+                          //           const SizedBox(
+                          //             width: 10,
+                          //           ),
+                          //           Text(
+                          //             "Teller Request List",
+                          //             style: GoogleFonts.poppins(
+                          //               fontWeight: FontWeight.w800,
+                          //               fontSize: 16,
+                          //               color: Colors.white,
+                          //               //fontWeight: FontWeight.bold,
+                          //               //fontFamily: "OpenSans",
+                          //             ),
+                          //           ),
+                          //         ],
+                          //       ),
+                          //     ));
                         } else
                           return CircularProgressIndicator();
                       },
                     ),
-                    const SizedBox(
-                      height: 5,
+                    SizedBox(
+                      height: _height * .01,
                     ),
                     noBalance
                         ? Container(
                             child: FutureBuilder(
                               future: getSharedData(),
                               builder: (context, snapshot) {
-                                var _loginuser = snapshot.data!;
+                                var _loginuser = snapshot.data ?? null;
                                 print("Ararayghsb - $_loginuser");
                                 if (snapshot.hasData) {
                                   return containerCustom(
@@ -686,8 +1099,67 @@ class _HomeState extends State<Home> {
                           )
                         : containerCustom(MobileTellerRequestList(
                             loginUserId: customerBalance!.loginUserId)),
-                    const SizedBox(
-                      height: 5,
+                    SizedBox(
+                      height: _height * .01,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: _width * .05),
+                      child: Column(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          TellerCustomery(widget.ID)));
+                            },
+                            child: Container(
+                              width: _width * .9,
+                              height: _height * .065,
+                              decoration: BoxDecoration(
+                                color: Color(0xfffffff),
+                                borderRadius: BorderRadius.circular(5),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black26,
+                                    blurStyle: BlurStyle.outer,
+                                    blurRadius: 10,
+                                    spreadRadius: 0,
+                                    offset: Offset.zero,
+                                  ),
+                                ],
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.fromLTRB(
+                                    _width * .06,
+                                    _height * .0157,
+                                    _width * .06,
+                                    _height * .0157),
+                                child: Center(
+                                    child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Deposit Cash",
+                                      style: GoogleFonts.poppins(
+                                        fontSize: _height * .015,
+                                        fontWeight: FontWeight.w400,
+                                        color: kPrimaryColor,
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.transfer_within_a_station,
+                                      color: kPrimaryColor,
+                                    ),
+                                  ],
+                                )),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     // Container(
                     //   height: 50,
@@ -743,467 +1215,699 @@ class _HomeState extends State<Home> {
                     //   height: 5,
                     // ),
 
-                    Container(
-                      height: 50,
-                      width: 380,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        // ignore: prefer_const_constructors
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          // 10% of the width, so there are ten blinds.
-                          // ignore: prefer_const_literals_to_create_immutables
-                          colors: <Color>[
-                            kPrimaryColor,
-                            kSecondaryColor,
-                          ], // red to yellow
-                          tileMode: TileMode
-                              .repeated, // repeats the gradient over the canvas
-                        ),
-                      ),
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const CashDeposit()));
-                        },
-                        child: Row(
-                          children: const <Widget>[
-                            SizedBox(
-                              width: 20,
-                            ),
-                            Icon(
-                              Icons.wifi,
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              "Deposit Cash",
-                              style: TextStyle(
-                                fontFamily: "OpenSans",
-                                fontWeight: FontWeight.w800,
-                                fontSize: 16,
-                                color: Colors.white,
+                    // Navigator.push(
+                    //           context,
+                    //           MaterialPageRoute(
+                    //               builder: (context) =>
+                    //                   TellerCustomery(widget.ID)));
+                    SizedBox(
+                      height: _height * .01,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: _width * .05),
+                      child: Column(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Liquid(
+                                          int.parse(widget.ID.toString()))));
+                            },
+                            child: Container(
+                              width: _width * .9,
+                              height: _height * .065,
+                              decoration: BoxDecoration(
+                                color: Color(0xfffffff),
+                                borderRadius: BorderRadius.circular(5),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black26,
+                                    blurStyle: BlurStyle.outer,
+                                    blurRadius: 10,
+                                    spreadRadius: 0,
+                                    offset: Offset.zero,
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Container(
-                      height: 50,
-                      width: 380,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        // ignore: prefer_const_constructors
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          // 10% of the width, so there are ten blinds.
-                          // ignore: prefer_const_literals_to_create_immutables
-                          colors: <Color>[
-                            kPrimaryColor,
-                            kSecondaryColor,
-                          ], // red to yellow
-                          tileMode: TileMode
-                              .repeated, // repeats the gradient over the canvas
-                        ),
-                      ),
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => Liquid()));
-                        },
-                        child: Row(
-                          children: const <Widget>[
-                            SizedBox(
-                              width: 20,
-                            ),
-                            Icon(
-                              Icons.wifi,
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              "Deposit Cash Liquidation",
-                              style: TextStyle(
-                                fontFamily: "OpenSans",
-                                fontWeight: FontWeight.w800,
-                                fontSize: 16,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Container(
-                      height: 50,
-                      width: 380,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        // ignore: prefer_const_constructors
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          // 10% of the width, so there are ten blinds.
-                          // ignore: prefer_const_literals_to_create_immutables
-                          colors: <Color>[
-                            kPrimaryColor,
-                            kSecondaryColor,
-                          ], // red to yellow
-                          tileMode: TileMode
-                              .repeated, // repeats the gradient over the canvas
-                        ),
-                      ),
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => Teller()));
-                        },
-                        child: Row(
-                          children: const <Widget>[
-                            SizedBox(
-                              width: 20,
-                            ),
-                            Icon(
-                              Icons.qr_code,
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              "Collection Statement",
-                              style: TextStyle(
-                                fontFamily: "OpenSans",
-                                fontWeight: FontWeight.w800,
-                                fontSize: 16,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Container(
-                      height: 50,
-                      width: 380,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        // ignore: prefer_const_constructors
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          // 10% of the width, so there are ten blinds.
-                          // ignore: prefer_const_literals_to_create_immutables
-                          colors: <Color>[
-                            kPrimaryColor,
-                            kSecondaryColor,
-                          ], // red to yellow
-                          tileMode: TileMode
-                              .repeated, // repeats the gradient over the canvas
-                        ),
-                      ),
-                      child: FutureBuilder(
-                          future: getSharedData(),
-                          builder: (context, snapshot) {
-                            var _loginuser = snapshot.data!;
-                            print("Ararayghsb - $_loginuser");
-                            if (snapshot.hasData) {
-                              return InkWell(
-                                onTap: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => Customer(
-                                              int.parse(
-                                                  _loginuser.toString()))));
-                                },
-                                child: Row(
-                                  children: const <Widget>[
-                                    SizedBox(
-                                      width: 20,
-                                    ),
-                                    Icon(
-                                      Icons.atm_sharp,
-                                    ),
-                                    SizedBox(
-                                      width: 10,
-                                    ),
+                              child: Padding(
+                                padding: EdgeInsets.fromLTRB(
+                                    _width * .06,
+                                    _height * .0157,
+                                    _width * .06,
+                                    _height * .0157),
+                                child: Center(
+                                    child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
                                     Text(
-                                      "Customer Enquiry",
-                                      style: TextStyle(
-                                        fontFamily: "OpenSans",
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 16,
-                                        color: Colors.white,
+                                      "Liquidate Till",
+                                      style: GoogleFonts.poppins(
+                                        fontSize: _height * .015,
+                                        fontWeight: FontWeight.w400,
+                                        color: kPrimaryColor,
                                       ),
                                     ),
+                                    Icon(
+                                      Icons.medication_liquid,
+                                      color: kPrimaryColor,
+                                    ),
                                   ],
-                                ),
-                              );
-                            } else
-                              return CircularProgressIndicator();
-                          }),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Container(
-                      height: 50,
-                      width: 380,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        // ignore: prefer_const_constructors
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          // 10% of the width, so there are ten blinds.
-                          // ignore: prefer_const_literals_to_create_immutables
-                          colors: <Color>[
-                            kPrimaryColor,
-                            kSecondaryColor,
-                          ], // red to yellow
-                          tileMode: TileMode
-                              .repeated, // repeats the gradient over the canvas
-                        ),
-                      ),
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => OpenAccount()));
-                        },
-                        child: Row(
-                          children: const <Widget>[
-                            SizedBox(
-                              width: 20,
-                            ),
-                            Icon(
-                              Icons.point_of_sale,
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              "Open Account",
-                              style: TextStyle(
-                                fontFamily: "OpenSans",
-                                fontWeight: FontWeight.w800,
-                                fontSize: 16,
-                                color: Colors.white,
+                                )),
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Container(
+                    //   height: 50,
+                    //   width: 380,
+                    //   decoration: BoxDecoration(
+                    //     borderRadius: BorderRadius.circular(10),
+                    //     // ignore: prefer_const_constructors
+                    //     gradient: LinearGradient(
+                    //       begin: Alignment.topLeft,
+                    //       end: Alignment.bottomRight,
+                    //       // 10% of the width, so there are ten blinds.
+                    //       // ignore: prefer_const_literals_to_create_immutables
+                    //       colors: <Color>[
+                    //         kPrimaryColor,
+                    //         kSecondaryColor,
+                    //       ], // red to yellow
+                    //       tileMode: TileMode
+                    //           .repeated, // repeats the gradient over the canvas
+                    //     ),
+                    //   ),
+                    //   child: InkWell(
+                    //     onTap: () {
+                    //       Navigator.push(
+                    //           context,
+                    //           MaterialPageRoute(
+                    //               builder: (context) =>
+                    //                   Liquid(int.parse(widget.ID.toString()))));
+                    //     },
+                    //     child: Row(
+                    //       children: <Widget>[
+                    //         const SizedBox(
+                    //           width: 20,
+                    //         ),
+                    //         const Icon(
+                    //           Icons.medication_liquid,
+                    //           color: Colors.white,
+                    //         ),
+                    //         const SizedBox(
+                    //           width: 10,
+                    //         ),
+                    //         Text(
+                    //           "Liquidate Till",
+                    //           style: GoogleFonts.poppins(
+                    //             fontWeight: FontWeight.w800,
+                    //             fontSize: 16,
+                    //             color: Colors.white,
+                    //             //fontWeight: FontWeight.bold,
+                    //             //fontFamily: "OpenSans",
+                    //           ),
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
+                    // const SizedBox(
+                    //   height: 5,
+                    // ),
+                    // Container(
+                    //   height: 50,
+                    //   width: 380,
+                    //   decoration: BoxDecoration(
+                    //     borderRadius: BorderRadius.circular(10),
+                    //     // ignore: prefer_const_constructors
+                    //     gradient: LinearGradient(
+                    //       begin: Alignment.topLeft,
+                    //       end: Alignment.bottomRight,
+                    //       // 10% of the width, so there are ten blinds.
+                    //       // ignore: prefer_const_literals_to_create_immutables
+                    //       colors: <Color>[
+                    //         kPrimaryColor,
+                    //         kSecondaryColor,
+                    //       ], // red to yellow
+                    //       tileMode: TileMode
+                    //           .repeated, // repeats the gradient over the canvas
+                    //     ),
+                    //   ),
+                    //   child: InkWell(
+                    //     onTap: () {
+                    //       Navigator.push(
+                    //           context,
+                    //           MaterialPageRoute(
+                    //               builder: (context) => const Teller()));
+                    //     },
+                    //     child: Row(
+                    //       children: const <Widget>[
+                    //         SizedBox(
+                    //           width: 20,
+                    //         ),
+                    //         Icon(
+                    //           Icons.qr_code,
+                    //         ),
+                    //         SizedBox(
+                    //           width: 10,
+                    //         ),
+                    //         Text(
+                    //           "Collection Statement",
+                    //           style: TextStyle(
+                    //             fontFamily: "OpenSans",
+                    //             fontWeight: FontWeight.w800,
+                    //             fontSize: 16,
+                    //             color: Colors.white,
+                    //           ),
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
+
+                    SizedBox(
+                      height: _height * .01,
+                    ),
+                    // Padding(
+                    //   padding: EdgeInsets.symmetric(horizontal: _width * .05),
+                    //   child: Column(
+                    //     children: [
+                    //       FutureBuilder(
+                    //           future: getSharedData(),
+                    //           builder: (context, snapshot) {
+                    //             var _loginuser = snapshot.data ?? null;
+                    //             print("Ararayghsb - $_loginuser");
+                    //             if (snapshot.hasData) {
+                    //               return InkWell(
+                    //                 onTap: () {
+                    //                   Navigator.push(
+                    //                       context,
+                    //                       MaterialPageRoute(
+                    //                           builder: (context) => Liquid(
+                    //                               int.parse(
+                    //                                   widget.ID.toString()))));
+                    //                 },
+                    //                 child: Container(
+                    //                   width: _width * .9,
+                    //                   height: _height * .065,
+                    //                   decoration: BoxDecoration(
+                    //                     color: Color(0xfffffff),
+                    //                     borderRadius: BorderRadius.circular(5),
+                    //                     boxShadow: [
+                    //                       BoxShadow(
+                    //                         color: Colors.black26,
+                    //                         blurStyle: BlurStyle.outer,
+                    //                         blurRadius: 10,
+                    //                         spreadRadius: 0,
+                    //                         offset: Offset.zero,
+                    //                       ),
+                    //                     ],
+                    //                   ),
+                    //                   child: Padding(
+                    //                     padding: EdgeInsets.fromLTRB(
+                    //                         _width * .06,
+                    //                         _height * .0157,
+                    //                         _width * .06,
+                    //                         _height * .0157),
+                    //                     child: Center(
+                    //                         child: Row(
+                    //                       mainAxisAlignment:
+                    //                           MainAxisAlignment.spaceBetween,
+                    //                       children: [
+                    //                         Text(
+                    //                           "Customer Enquiry",
+                    //                           style: GoogleFonts.poppins(
+                    //                               fontSize: _height * .015,
+                    //                               fontWeight: FontWeight.w400,
+                    //                               color: kPrimaryColor),
+                    //                         ),
+                    //                         Icon(
+                    //                           Icons.dashboard_customize_rounded,
+                    //                           color: kPrimaryColor,
+                    //                         ),
+                    //                       ],
+                    //                     )),
+                    //                   ),
+                    //                 ),
+                    //               );
+                    //             } else
+                    //               return CircularProgressIndicator();
+                    //           }),
+                    //     ],
+                    //   ),
+                    // ),
+                    // SizedBox(
+                    //   height: _height * .01,
+                    // ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: _width * .05),
+                      child: Column(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              //Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => OpenAcc()), (route) => false);
+
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => OpenAcc(
+                                          "",
+                                          Provider.of<ServiceClass>(context)
+                                              .getStates,
+                                          "")));
+                            },
+                            child: Container(
+                              width: _width * .9,
+                              height: _height * .065,
+                              decoration: BoxDecoration(
+                                color: Color(0xfffffff),
+                                borderRadius: BorderRadius.circular(5),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black26,
+                                    blurStyle: BlurStyle.outer,
+                                    blurRadius: 10,
+                                    spreadRadius: 0,
+                                    offset: Offset.zero,
+                                  ),
+                                ],
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.fromLTRB(
+                                    _width * .06,
+                                    _height * .0157,
+                                    _width * .06,
+                                    _height * .0157),
+                                child: Center(
+                                    child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Open Account",
+                                      style: GoogleFonts.poppins(
+                                        fontSize: _height * .015,
+                                        fontWeight: FontWeight.w400,
+                                        color: kPrimaryColor,
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.point_of_sale,
+                                      color: kPrimaryColor,
+                                    ),
+                                  ],
+                                )),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     SizedBox(
-                      height: 5,
+                      height: _height * .01,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: _width * .05),
+                      child: Column(
+                        children: [
+                          FutureBuilder(
+                            future: getSharedData(),
+                            builder: ((context, snapshot) {
+                              if (snapshot.hasData) {
+                                var _data = snapshot.data ?? "";
+                                print(_data);
+                                return InkWell(
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => OpenAccount(
+                                                int.parse(_data.toString()))));
+                                  },
+                                  child: Container(
+                                    width: _width * .9,
+                                    height: _height * .065,
+                                    decoration: BoxDecoration(
+                                      color: Color(0xfffffff),
+                                      borderRadius: BorderRadius.circular(5),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black26,
+                                          blurStyle: BlurStyle.outer,
+                                          blurRadius: 10,
+                                          spreadRadius: 0,
+                                          offset: Offset.zero,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Padding(
+                                      padding: EdgeInsets.fromLTRB(
+                                          _width * .06,
+                                          _height * .0157,
+                                          _width * .06,
+                                          _height * .0157),
+                                      child: Center(
+                                          child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            "Daily Collections Summary",
+                                            style: GoogleFonts.poppins(
+                                                fontSize: _height * .015,
+                                                fontWeight: FontWeight.w400,
+                                                color: kPrimaryColor),
+                                          ),
+                                          Icon(
+                                            Icons.collections,
+                                            color: kPrimaryColor,
+                                          ),
+                                        ],
+                                      )),
+                                    ),
+                                  ),
+                                );
+                              } else
+                                return CircularProgressIndicator();
+                            }),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // const SizedBox(
+                    //   height: 5,
+                    // ),
+                    // Container(
+                    //   height: 50,
+                    //   width: 380,
+                    //   decoration: BoxDecoration(
+                    //     borderRadius: BorderRadius.circular(10),
+                    //     // ignore: prefer_const_constructors
+                    //     gradient: LinearGradient(
+                    //       begin: Alignment.topLeft,
+                    //       end: Alignment.bottomRight,
+                    //       // 10% of the width, so there are ten blinds.
+                    //       // ignore: prefer_const_literals_to_create_immutables
+                    //       colors: <Color>[
+                    //         kPrimaryColor,
+                    //         kSecondaryColor,
+                    //       ], // red to yellow
+                    //       tileMode: TileMode
+                    //           .repeated, // repeats the gradient over the canvas
+                    //     ),
+                    //   ),
+                    //   child: FutureBuilder(
+                    //       future: getSharedData(),
+                    //       builder: (context, snapshot) {
+                    //         var _loginuser = snapshot.data ?? null;
+                    //         print("Ararayghsb - $_loginuser");
+                    //         if (snapshot.hasData) {
+                    //           if(snapshot.hasData){
+                    //           return InkWell(
+                    //             onTap: () {
+                    //               Navigator.push(
+                    //                   context,
+                    //                   MaterialPageRoute(
+                    //                       builder: (context) => Customer(
+                    //                           int.parse(
+                    //                               _loginuser.toString()))));
+                    //             },
+                    //             child: Row(
+                    //               children: <Widget>[
+                    //                 const SizedBox(
+                    //                   width: 20,
+                    //                 ),
+                    //                 const Icon(
+                    //                   Icons.dashboard_customize_rounded,
+                    //                   color: Colors.white,
+                    //                 ),
+                    //                 const SizedBox(
+                    //                   width: 10,
+                    //                 ),
+                    //                 Text(
+                    //                   "Customer Enquiry",
+                    //                   style: GoogleFonts.poppins(
+                    //                     fontWeight: FontWeight.w800,
+                    //                     fontSize: 16,
+                    //                     color: Colors.white,
+                    //                     //fontWeight: FontWeight.bold,
+                    //                     //fontFamily: "OpenSans",
+                    //                   ),
+                    //                 ),
+                    //               ],
+                    //             ),
+                    //           );
+                    //         } else
+                    //           return CircularProgressIndicator();
+                    //       }),
+                    // ),
+                    // const SizedBox(
+                    //   height: 5,
+                    // ),
+                    // Container(
+                    //   height: 50,
+                    //   width: 380,
+                    //   decoration: BoxDecoration(
+                    //     borderRadius: BorderRadius.circular(10),
+                    //     // ignore: prefer_const_constructors
+                    //     gradient: LinearGradient(
+                    //       begin: Alignment.topLeft,
+                    //       end: Alignment.bottomRight,
+                    //       // 10% of the width, so there are ten blinds.
+                    //       // ignore: prefer_const_literals_to_create_immutables
+                    //       colors: <Color>[
+                    //         kPrimaryColor,
+                    //         kSecondaryColor,
+                    //       ], // red to yellow
+                    //       tileMode: TileMode
+                    //           .repeated, // repeats the gradient over the canvas
+                    //     ),
+                    //   ),
+                    //   child: InkWell(
+                    //     onTap: () {
+                    //       Navigator.push(
+                    //           context,
+                    //           MaterialPageRoute(
+                    //               builder: (context) => const OpenAccount()));
+                    //     },
+                    //     child: Row(
+                    //       children: <Widget>[
+                    //         const SizedBox(
+                    //           width: 20,
+                    //         ),
+                    //         const Icon(
+                    //           Icons.point_of_sale,
+                    //           color: Colors.white,
+                    //         ),
+                    //         const SizedBox(
+                    //           width: 10,
+                    //         ),
+                    //         Text(
+                    //           "Open Account",
+                    //           style: GoogleFonts.poppins(
+                    //             fontWeight: FontWeight.w800,
+                    //             fontSize: 16,
+                    //             color: Colors.white,
+                    //             //fontWeight: FontWeight.bold,
+                    //             //fontFamily: "OpenSans",
+                    //           ),
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
+                    // const SizedBox(
+                    //   height: 5,
+                    // ),
+                    // Container(
+                    //   height: 50,
+                    //   width: 380,
+                    //   decoration: BoxDecoration(
+                    //     borderRadius: BorderRadius.circular(10),
+                    //     // ignore: prefer_const_constructors
+                    //     gradient: LinearGradient(
+                    //       begin: Alignment.topLeft,
+                    //       end: Alignment.bottomRight,
+                    //       // 10% of the width, so there are ten blinds.
+                    //       // ignore: prefer_const_literals_to_create_immutables
+                    //       colors: <Color>[
+                    //         kPrimaryColor,
+                    //         kSecondaryColor,
+                    //       ], // red to yellow
+                    //       tileMode: TileMode
+                    //           .repeated, // repeats the gradient over the canvas
+                    //     ),
+                    //   ),
+                    //   child: InkWell(
+                    //     onTap: () {
+                    //       Navigator.push(
+                    //           context,
+                    //           MaterialPageRoute(
+                    //               builder: (context) =>
+                    //                   const DailyCollections()));
+                    //     },
+                    //     child: Row(
+                    //       children: <Widget>[
+                    //         const SizedBox(
+                    //           width: 20,
+                    //         ),
+                    //         const Icon(
+                    //           Icons.collections,
+                    //           color: Colors.white,
+                    //         ),
+                    //         const SizedBox(
+                    //           width: 10,
+                    //         ),
+                    //         Text(
+                    //           "Daily Collections Summary",
+                    //           style: GoogleFonts.poppins(
+                    //             fontWeight: FontWeight.w800,
+                    //             fontSize: 16,
+                    //             color: Colors.white,
+                    //             //fontWeight: FontWeight.bold,
+                    //             //fontFamily: "OpenSans",
+                    //           ),
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
+                    // const SizedBox(
+                    //   height: 5,
+                    // ),
+                    // Container(
+                    //   height: 50,
+                    //   width: 380,
+                    //   decoration: BoxDecoration(
+                    //     borderRadius: BorderRadius.circular(10),
+                    //     // ignore: prefer_const_constructors
+                    //     gradient: LinearGradient(
+                    //       begin: Alignment.topLeft,
+                    //       end: Alignment.bottomRight,
+                    //       // 10% of the width, so there are ten blinds.
+                    //       // ignore: prefer_const_literals_to_create_immutables
+                    //       colors: <Color>[
+                    //         kPrimaryColor,
+                    //         kSecondaryColor,
+                    //       ], // red to yellow
+                    //       tileMode: TileMode
+                    //           .repeated, // repeats the gradient over the canvas
+                    //     ),
+                    //   ),
+                    //   child: InkWell(
+                    //     onTap: () {
+                    //       Navigator.push(
+                    //           context,
+                    //           MaterialPageRoute(
+                    //               builder: (context) => SummaryAccount()));
+                    //     },
+                    //     child: Row(
+                    //       children: const <Widget>[
+                    //         SizedBox(
+                    //           width: 20,
+                    //         ),
+                    //         Icon(
+                    //           Icons.point_of_sale,
+                    //         ),
+                    //         SizedBox(
+                    //           width: 10,
+                    //         ),
+                    //         Text(
+                    //           "Account Opened",
+                    //           style: TextStyle(
+                    //             fontFamily: "OpenSans",
+                    //             fontWeight: FontWeight.w800,
+                    //             fontSize: 16,
+                    //             color: Colors.white,
+                    //           ),
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
+                    // const SizedBox(
+                    //   height: 5,
+                    // ),
+                    // Container(
+                    //   height: 50,
+                    //   width: 380,
+                    //   decoration: BoxDecoration(
+                    //     borderRadius: BorderRadius.circular(10),
+                    //     // ignore: prefer_const_constructors
+                    //     gradient: LinearGradient(
+                    //       begin: Alignment.topLeft,
+                    //       end: Alignment.bottomRight,
+                    //       // 10% of the width, so there are ten blinds.
+                    //       // ignore: prefer_const_literals_to_create_immutables
+                    //       colors: <Color>[
+                    //         kPrimaryColor,
+                    //         kSecondaryColor,
+                    //       ], // red to yellow
+                    //       tileMode: TileMode
+                    //           .repeated, // repeats the gradient over the canvas
+                    //     ),
+                    //   ),
+                    //   child: InkWell(
+                    //     onTap: () {},
+                    //     child: Row(
+                    //       children: const <Widget>[
+                    //         SizedBox(
+                    //           width: 20,
+                    //         ),
+                    //         Icon(
+                    //           Icons.point_of_sale,
+                    //         ),
+                    //         SizedBox(
+                    //           width: 10,
+                    //         ),
+                    //         Text(
+                    //           "Print Receipt",
+                    //           style: TextStyle(
+                    //             fontFamily: "OpenSans",
+                    //             fontWeight: FontWeight.w800,
+                    //             fontSize: 16,
+                    //             color: Colors.white,
+                    //           ),
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
+                    SizedBox(
+                      height: _height * .02,
                     ),
                     Container(
-                      height: 50,
-                      width: 380,
+                      width: _width * .4,
+                      height: _height * .04,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
+                        color: kPrimaryColor,
+                        borderRadius: BorderRadius.circular(5),
                         // ignore: prefer_const_constructors
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          // 10% of the width, so there are ten blinds.
-                          // ignore: prefer_const_literals_to_create_immutables
-                          colors: <Color>[
-                            kPrimaryColor,
-                            kSecondaryColor,
-                          ], // red to yellow
-                          tileMode: TileMode
-                              .repeated, // repeats the gradient over the canvas
-                        ),
                       ),
                       child: InkWell(
                         onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const DailyCollections()));
+                          setState(() {
+                            showloading = true;
+                          });
+                          logOut();
+                          // Navigator.push(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //         builder: (context) => Loading()));
+                          // Navigator.pushNamed(context, '/bills');
                         },
-                        child: Row(
-                          children: const <Widget>[
-                            SizedBox(
-                              width: 20,
-                            ),
-                            Icon(
-                              Icons.point_of_sale,
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              "Daily Collections Summary",
-                              style: TextStyle(
-                                fontFamily: "OpenSans",
-                                fontWeight: FontWeight.w800,
-                                fontSize: 16,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Container(
-                      height: 50,
-                      width: 380,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        // ignore: prefer_const_constructors
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          // 10% of the width, so there are ten blinds.
-                          // ignore: prefer_const_literals_to_create_immutables
-                          colors: <Color>[
-                            kPrimaryColor,
-                            kSecondaryColor,
-                          ], // red to yellow
-                          tileMode: TileMode
-                              .repeated, // repeats the gradient over the canvas
-                        ),
-                      ),
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => SummaryAccount()));
-                        },
-                        child: Row(
-                          children: const <Widget>[
-                            SizedBox(
-                              width: 20,
-                            ),
-                            Icon(
-                              Icons.point_of_sale,
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              "Account Opened",
-                              style: TextStyle(
-                                fontFamily: "OpenSans",
-                                fontWeight: FontWeight.w800,
-                                fontSize: 16,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Container(
-                      height: 50,
-                      width: 380,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        // ignore: prefer_const_constructors
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          // 10% of the width, so there are ten blinds.
-                          // ignore: prefer_const_literals_to_create_immutables
-                          colors: <Color>[
-                            kPrimaryColor,
-                            kSecondaryColor,
-                          ], // red to yellow
-                          tileMode: TileMode
-                              .repeated, // repeats the gradient over the canvas
-                        ),
-                      ),
-                      child: InkWell(
-                        onTap: () {},
-                        child: Row(
-                          children: const <Widget>[
-                            SizedBox(
-                              width: 20,
-                            ),
-                            Icon(
-                              Icons.point_of_sale,
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              "Print Receipt",
-                              style: TextStyle(
-                                fontFamily: "OpenSans",
-                                fontWeight: FontWeight.w800,
-                                fontSize: 16,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 80,
-                    ),
-                    Container(
-                      width: 320,
-                      height: 42,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        // ignore: prefer_const_constructors
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          // 10% of the width, so there are ten blinds.
-                          // ignore: prefer_const_literals_to_create_immutables
-                          colors: <Color>[
-                            kPrimaryColor,
-                            kSecondaryColor,
-                          ], // red to yellow
-                          tileMode: TileMode
-                              .repeated, // repeats the gradient over the canvas
-                        ),
-                      ),
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.pushNamed(context, '/bills');
-                        },
-                        child: const Center(
+                        child: Center(
                           child: Text(
-                            "Log Out",
-                            style: TextStyle(
-                              fontFamily: "OpenSans",
-                              fontWeight: FontWeight.w800,
+                            "LOG OUT",
+                            style: GoogleFonts.poppins(
+                              //fontFamily: "OpenSans",
+                              //ontWeight: FontWeight.w100,
                               color: Colors.white,
+                              fontWeight: FontWeight.bold,
                               //fontWeight: FontWeight.bold,
                               letterSpacing: 1.0,
                               fontSize: 12,
@@ -1403,131 +2107,239 @@ class _HomeState extends State<Home> {
               //   ),
               // ),
             )
-          : Scaffold(
-              backgroundColor: kBackgroundHome2,
-              body: Center(
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: _height * .45,
-                    ),
-                    const CircularProgressIndicator(
-                      strokeWidth: 10,
-                      semanticsLabel: ("Please Wait"),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    const Text(
-                      "Loading...",
-                      style: TextStyle(
-                        color: Colors.black54,
-                        fontSize: 20,
-                        fontFamily: "OpenSans",
-                        letterSpacing: 0,
-                        //fontWeight: FontWeight.bold,
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ),
+          : _filterDialog(context),
+      // Visibility(
+      //     visible: showloading,
+      //     child: _filterDialog(context),
+      //   ),
+      // Scaffold(
+      //     backgroundColor: kBackgroundHome2,
+      //     body: Center(
+      //       child: Column(
+      //         children: [
+      //           SizedBox(
+      //             height: _height * .45,
+      //           ),
+      //           const CircularProgressIndicator(
+      //             strokeWidth: 10,
+      //             semanticsLabel: ("Please Wait"),
+      //           ),
+      //           const SizedBox(
+      //             height: 10,
+      //           ),
+      //           const Text(
+      //             "Loading...",
+      //             style: TextStyle(
+      //               color: Colors.black54,
+      //               fontSize: 20,
+      //               fontFamily: "OpenSans",
+      //               letterSpacing: 0,
+      //               //fontWeight: FontWeight.bold,
+      //             ),
+      //           )
+      //         ],
+      //       ),
+      //     ),
+      //   ),
     );
   }
 
-  Widget containerCustom(MobileTellerRequestList mylist) => Container(
-        height: 50,
-        width: 380,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          // ignore: prefer_const_constructors
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            // 10% of the width, so there are ten blinds.
-            // ignore: prefer_const_literals_to_create_immutables
-            colors: <Color>[
-              kPrimaryColor,
-              kSecondaryColor,
-            ], // red to yellow
-            tileMode: TileMode.repeated, // repeats the gradient over the canvas
+  Widget _filterDialog(BuildContext context) {
+    double _width = MediaQuery.of(context).size.width;
+    double _height = MediaQuery.of(context).size.height;
+    var containerheight = _height * .354;
+    var _mypadding = SizedBox(height: containerheight * .12);
+    return Scaffold(
+      //backgroundColor: Colors.black45,
+      body: Center(
+        child: Container(
+          //height: 50,
+          width: _width * .20,
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(50)),
+          child: AnimatedBuilder(
+            animation: anicontroller,
+            builder: (context, child) {
+              return Transform.rotate(
+                angle: anicontroller.value * 2 * pi,
+                child: child,
+              );
+            },
+            child: Image.asset(
+              "lib/images/roundt.png",
+              fit: BoxFit.contain,
+            ),
           ),
         ),
-        child: FutureBuilder(
-          future: getSharedData(),
-          builder: (context, snapshot) {
-            var _loginuser = snapshot.data!;
-            print("Ararayghsb - $_loginuser");
-            if (snapshot.hasData) {
-              return InkWell(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => CheckBalance(
-                                int.parse(_loginuser.toString()))));
-                  },
-                  child: Center(
-                    child: Row(
-                      children: const <Widget>[
-                        SizedBox(
-                          width: 20,
-                        ),
-                        Icon(
-                          Icons.point_of_sale,
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Text(
-                          "Get Balance",
-                          style: TextStyle(
-                            fontFamily: "OpenSans",
-                            fontWeight: FontWeight.w800,
-                            fontSize: 16,
-                            color: Colors.white,
+        // CircularProgressIndicator(
+        //   color: Colors.blue,
+        //   strokeWidth: 20,
+        // ),
+      ),
+    );
+  }
+
+  Widget containerCustom(MobileTellerRequestList mylist) {
+    double _width = MediaQuery.of(context).size.width;
+    double _height = MediaQuery.of(context).size.height;
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: _width * .05),
+      child: Column(
+        children: [
+          FutureBuilder(
+            future: getSharedData(),
+            builder: (context, snapshot) {
+              var _loginuser = snapshot.data ?? null;
+              print("Ararayghsb - $_loginuser");
+              if (snapshot.hasData) {
+                return InkWell(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => CheckBalance(
+                                  int.parse(_loginuser.toString()))));
+                    },
+                    child: Container(
+                      width: _width * .9,
+                      height: _height * .065,
+                      decoration: BoxDecoration(
+                        color: Color(0xffffffff),
+                        borderRadius: BorderRadius.circular(5),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurStyle: BlurStyle.outer,
+                            blurRadius: 10,
+                            spreadRadius: 0,
+                            offset: Offset.zero,
+                          ),
+                        ],
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(_width * .06,
+                            _height * .0157, _width * .06, _height * .0157),
+                        child: Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Get Balance",
+                                style: GoogleFonts.poppins(
+                                  fontSize: _height * .015,
+                                  fontWeight: FontWeight.w400,
+                                  color: kPrimaryColor,
+                                ),
+                              ),
+                              Icon(
+                                Icons.account_balance_wallet_outlined,
+                                color: kPrimaryColor,
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
-                  ));
-            } else
-              return CircularProgressIndicator();
-          },
-        ),
-        // child:  InkWell(
-        //   onTap: () {
+                      ),
+                    ));
+              } else
+                return CircularProgressIndicator();
+            },
+          ),
+        ],
+      ),
+    );
 
-        //     Navigator.push(
-        //         context,
-        //         MaterialPageRoute(
-        //             builder: (context) => CheckBalance(mylist.loginUserId!)));
-        //     //getTeller();
-        //   },
-        //   child: Row(
-        //     children: const <Widget>[
-        //       SizedBox(
-        //         width: 20,
-        //       ),
-        //       Icon(
-        //         Icons.point_of_sale,
-        //       ),
-        //       SizedBox(
-        //         width: 10,
-        //       ),
-        //       Text(
-        //         "Get Balance",
-        //         style: TextStyle(
-        //           fontFamily: "OpenSans",
-        //           fontWeight: FontWeight.w800,
-        //           fontSize: 16,
-        //           color: Colors.white,
-        //         ),
-        //       ),
-        //     ],
-        // ),
-        // ),
-      );
+    // height: 50,
+    // width: 380,
+    // decoration: BoxDecoration(
+    //   borderRadius: BorderRadius.circular(10),
+    //   // ignore: prefer_const_constructors
+    //   gradient: LinearGradient(
+    //     begin: Alignment.topLeft,
+    //     end: Alignment.bottomRight,
+    //     // 10% of the width, so there are ten blinds.
+    //     // ignore: prefer_const_literals_to_create_immutables
+    //     colors: <Color>[
+    //       kPrimaryColor,
+    //       kSecondaryColor,
+    //     ], // red to yellow
+    //     tileMode: TileMode.repeated, // repeats the gradient over the canvas
+    //   ),
+    // ),
+    // child: FutureBuilder(
+    //   future: getSharedData(),
+    //   builder: (context, snapshot) {
+    //     var _loginuser = snapshot.data ?? null;
+    //     print("Ararayghsb - $_loginuser");
+    //     if (snapshot.hasData) {
+    //       return InkWell(
+    //           onTap: () {
+    //             Navigator.push(
+    //                 context,
+    //                 MaterialPageRoute(
+    //                     builder: (context) =>
+    //                         CheckBalance(int.parse(_loginuser.toString()))));
+    //           },
+    //           child: Center(
+    //             child: Row(
+    //               children: <Widget>[
+    //                 const SizedBox(
+    //                   width: 20,
+    //                 ),
+    //                 const Icon(
+    //                   Icons.account_balance_wallet_outlined,
+    //                   color: Colors.white,
+    //                 ),
+    //                 const SizedBox(width: 10),
+    //                 Text(
+    //                   "Get Balance",
+    //                   style: GoogleFonts.poppins(
+    //                     fontWeight: FontWeight.w800,
+    //                     fontSize: 16,
+    //                     color: Colors.white,
+    //                     //fontWeight: FontWeight.bold,
+    //                     //fontFamily: "OpenSans",
+    //                   ),
+    //                 ),
+    //               ],
+    //             ),
+    //           ));
+    //     } else
+    //       return CircularProgressIndicator();
+    //   },
+    // ),
+    // // child:  InkWell(
+    // //   onTap: () {
+
+    // //     Navigator.push(
+    // //         context,
+    // //         MaterialPageRoute(
+    // //             builder: (context) => CheckBalance(mylist.loginUserId!)));
+    // //     //getTeller();
+    // //   },
+    // //   child: Row(
+    // //     children: const <Widget>[
+    // //       SizedBox(
+    // //         width: 20,
+    // //       ),
+    // //       Icon(
+    // //         Icons.point_of_sale,
+    // //       ),
+    // //       SizedBox(
+    // //         width: 10,
+    // //       ),
+    // //       Text(
+    // //         "Get Balance",
+    // //         style: TextStyle(
+    // //           fontFamily: "OpenSans",
+    // //           fontWeight: FontWeight.w800,
+    // //           fontSize: 16,
+    // //           color: Colors.white,
+    // //         ),
+    // //       ),
+    // //     ],
+    // // ),
+    // // ),
+    //);
+  }
 
   Future<void> balance() async {
     ServiceClass serviceClass = ServiceClass();
@@ -1543,6 +2355,7 @@ class _HomeState extends State<Home> {
         noBalance = true;
         showData = true;
         loading = false;
+        showloading = false;
       });
     } else {
       var bodyT = jsonDecode(body);
@@ -1551,8 +2364,10 @@ class _HomeState extends State<Home> {
           customerBalance = GetBalance.fromJson(bodyT);
           showBalance = true;
           showData = true;
+          showloading = false;
         });
       } else {
+        showloading = false;
         showMessage(bodyT["message"]);
       }
     }

@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:teller/constants.dart';
@@ -12,20 +12,18 @@ import 'package:teller/services.dart';
 import 'package:teller/security.dart';
 import 'package:teller/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
-
   @override
   _LoginState createState() => _LoginState();
 }
 
-class _LoginState extends State<Login> {
+class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   Responselogin? loginData;
-  late AnimationController controller;
-
+  late AnimationController anicontroller;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-
   showMessage(String message,
       [Duration duration = const Duration(seconds: 4)]) {
     _scaffoldKey.currentState!.showSnackBar(SnackBar(
@@ -40,6 +38,9 @@ class _LoginState extends State<Login> {
     ));
   }
 
+  bool visiblePass = false;
+  String passText = "show";
+  bool _obscureText = true;
   bool emailError = false;
   bool showloading = false;
   bool buttonOn = false;
@@ -55,14 +56,50 @@ class _LoginState extends State<Login> {
     });
   }
 
+  void _toggle() {
+    setState(() {
+      _obscureText = !_obscureText;
+    });
+  }
+
   @override
   void initState() {
     Timer(const Duration(seconds: 20), onChange);
     super.initState();
+    anicontroller = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 2),
+    );
+    anicontroller.repeat();
+  }
+
+  @override
+  void dispose() {
+    anicontroller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    // if (showloading) {
+    //   print("o click");
+
+    //   showDialog(
+    //       context: context,
+    //       builder: (BuildContext context) {
+    //         return _filterDialog(context);
+    //       });
+    // }
+
+    // showloading
+    //     ? showDialog(
+    //         context: context,
+    //         builder: (BuildContext context) {
+    //           return _filterDialog(context);
+    //         })
+    //     : null;
+    double _width = MediaQuery.of(context).size.width;
+    double _height = MediaQuery.of(context).size.height;
     return Stack(
       children: [
         Container(
@@ -70,61 +107,64 @@ class _LoginState extends State<Login> {
             image: DecorationImage(
               image: AssetImage('lib/images/teller.jpg'),
               fit: BoxFit.cover,
-              colorFilter: ColorFilter.mode(Colors.black26, BlendMode.darken),
+              colorFilter: ColorFilter.mode(Colors.black87, BlendMode.darken),
             ),
           ),
         ),
         Scaffold(
           key: _scaffoldKey,
-          backgroundColor: Colors.black45,
+          backgroundColor: Colors.transparent,
           body: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: Column(
               children: <Widget>[
-                const SizedBox(
-                  height: 50,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const <Widget>[
-                    SizedBox(
-                      width: 0,
-                    ),
-                    // Image(
-                    //   image: AssetImage('lib/images/saleologo.png'),
-                    //   height: 55,
-                    // ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 40,
-                ),
-                const Text(
-                  'WELCOME',
-                  style: TextStyle(
-                    fontFamily: "OpenSans",
-                    letterSpacing: 2.0,
-                    color: kSecondaryColor,
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(
-                  height: 50,
+                SizedBox(
+                  height: _height * .08,
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 30,
+                  height: 80,
+                  child: Image.asset(
+                    "lib/images/ttteller.png",
+                    fit: BoxFit.cover,
+                  ),
+                ),
+
+                // SizedBox(
+                //   height: _height * .05,
+                // ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const <Widget>[],
+                ),
+                SizedBox(
+                  height: _height * .015,
+                ),
+                Text(
+                  'WELCOME TELLER',
+                  style: GoogleFonts.openSans(
+                    //fontFamily: "OpenSans",
+                    letterSpacing: 2.0,
+                    color: kSecondaryColor,
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                SizedBox(
+                  height: _height * .05,
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: _width * .025,
                   ),
                   child: Column(
                     children: <Widget>[
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(5),
+                          color: Colors.grey.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(0),
                         ),
                         child: TextField(
-                          style: const TextStyle(
+                          style: GoogleFonts.ubuntu(
                             color: Colors.white,
                           ),
                           onChanged: (text2) {
@@ -164,21 +204,21 @@ class _LoginState extends State<Login> {
                             // }
                           },
                           controller: usernameC,
-                          decoration: const InputDecoration(
-                            hintText: "Username",
-                            hintStyle: TextStyle(
-                              color: Colors.white,
+                          decoration: InputDecoration(
+                            hintText: "User ID",
+                            hintStyle: GoogleFonts.ubuntu(
+                              color: Colors.grey[300],
                               letterSpacing: 1.0,
-                              fontSize: 13,
-                              fontFamily: "OpenSans",
+                              fontSize: 14,
+                              //fontFamily: "OpenSans",
                             ),
                             border: InputBorder.none,
-                            prefixIcon: Padding(
+                            prefixIcon: const Padding(
                               padding: EdgeInsets.all(0),
                               child: Icon(
                                 Icons.email_sharp,
-                                size: 15,
-                                color: Colors.white,
+                                size: 20,
+                                color: Colors.grey,
                               ),
                             ),
                           ),
@@ -186,16 +226,16 @@ class _LoginState extends State<Login> {
                           keyboardType: TextInputType.emailAddress,
                         ),
                       ),
-                      const SizedBox(
-                        height: 10,
+                      SizedBox(
+                        height: _height * .01,
                       ),
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(5),
+                          color: Colors.grey.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(0),
                         ),
                         child: TextField(
-                          style: const TextStyle(
+                          style: GoogleFonts.ubuntu(
                             color: Colors.white,
                           ),
                           onChanged: (text2) {
@@ -236,35 +276,52 @@ class _LoginState extends State<Login> {
                             // }
                           },
                           controller: passwordC,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             hintText: "Password",
-                            hintStyle: TextStyle(
-                              color: Colors.white,
-                              fontFamily: "OpenSans",
+                            hintStyle: GoogleFonts.ubuntu(
+                              color: Colors.grey[300],
+                              //fontFamily: "OpenSans",
                               letterSpacing: 1.0,
-                              fontSize: 13,
+                              fontSize: 14,
                             ),
-                            prefixIcon: Padding(
+                            prefixIcon: const Padding(
                               padding: EdgeInsets.all(0),
                               child: Icon(
                                 Icons.lock,
-                                size: 15,
-                                color: Colors.white,
+                                size: 20,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            suffixIcon: Padding(
+                              padding: EdgeInsets.all(0),
+                              child: InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    _toggle();
+                                    visiblePass = true;
+                                  });
+                                },
+                                child: const Icon(
+                                  Icons.visibility,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                             border: InputBorder.none,
                           ),
                           textInputAction: TextInputAction.done,
                           keyboardType: TextInputType.emailAddress,
-                          obscureText: true,
+                          obscureText: visiblePass ? false : true,
                         ),
                       ),
-                      const SizedBox(
-                        height: 20,
+                      SizedBox(
+                        height: _height * .02,
                       ),
                       Container(
-                        height: 40,
-                        width: 350,
+                        padding:
+                            EdgeInsets.symmetric(horizontal: _width * .025),
+                        height: _height * .053,
+                        width: _width * .95,
                         decoration: buttonOn
                             ? BoxDecoration(
                                 // ignore: prefer_const_constructors
@@ -280,22 +337,45 @@ class _LoginState extends State<Login> {
                                   tileMode: TileMode
                                       .repeated, // repeats the gradient over the canvas
                                 ),
-                                borderRadius: BorderRadius.circular(5),
+                                borderRadius: BorderRadius.circular(0),
                               )
                             : BoxDecoration(
                                 // ignore: prefer_const_constructors
-                                color: Colors.grey,
-                                borderRadius: BorderRadius.circular(5),
+                                color: Colors.grey[400],
+                                borderRadius: BorderRadius.circular(0),
                               ),
                         child: InkWell(
                           onTap: buttonOn
                               ? () {
+                                  // setState(() {
+                                  //   print("loader3223");
+                                  //   showloading = true;
+                                  // });
+
                                   if (usernameC.text.isNotEmpty &&
                                       passwordC.text.isNotEmpty) {
+                                    setState(() {
+                                      showloading = true;
+                                    });
+
+                                    // if (showloading) {
+                                    //   print("kslskls");
+
                                     logon();
-                                    usernameC.clear();
-                                    passwordC.clear();
+                                    //logon();
+                                    //usernameC.clear();
+                                    //passwordC.clear();
                                   }
+                                  // else if (showloading == true) {
+                                  //   showDialog(
+                                  //           context: context,
+                                  //           builder: (BuildContext context) {
+                                  //             return _filterDialog(context);
+                                  //           })
+                                  //       //.
+                                  //       // then((value) => logon())
+                                  //       ;
+                                  // }
                                 }
                               : null,
                           child: const Center(
@@ -315,9 +395,9 @@ class _LoginState extends State<Login> {
                     ],
                   ),
                 ),
-                const SizedBox(
-                  height: 20,
-                ),
+                // const SizedBox(
+                //   height: 20,
+                // ),
                 // TextButton(
                 //   child: Text(
                 //     'FORGOT PASSWORD?',
@@ -329,11 +409,11 @@ class _LoginState extends State<Login> {
                 //   ),
                 //   onPressed: () {},
                 // ),
-                const SizedBox(
-                  height: 300,
+                SizedBox(
+                  height: _height * .3,
                 ),
                 const Text(
-                  'DONT HAVE AN ACCOUNT?',
+                  'NEW TELLER?',
                   style: TextStyle(
                     fontFamily: "OpenSans",
                     letterSpacing: 7.0,
@@ -342,11 +422,11 @@ class _LoginState extends State<Login> {
                   ),
                 ),
                 const SizedBox(
-                  height: 10,
+                  height: 20,
                 ),
                 Container(
-                  height: 40,
-                  width: 350,
+                  height: _height * .053,
+                  width: _width * .95,
                   decoration: BoxDecoration(
                     // ignore: prefer_const_constructors
                     gradient: LinearGradient(
@@ -361,7 +441,7 @@ class _LoginState extends State<Login> {
                       tileMode: TileMode
                           .repeated, // repeats the gradient over the canvas
                     ),
-                    borderRadius: BorderRadius.circular(5),
+                    borderRadius: BorderRadius.circular(0),
                   ),
                   child: InkWell(
                     onTap: () {
@@ -384,11 +464,59 @@ class _LoginState extends State<Login> {
                     ),
                   ),
                 ),
+
+                // showDialog(
+                //       context: context,
+                //       builder: (BuildContext context) {
+                //         return _filterDialog(context);
+                //       });
               ],
             ),
           ),
         ),
+        Visibility(
+          visible: showloading,
+          child: _filterDialog(context),
+        ),
+        // Visibility(
+        //   visible: showloading,
+        //   child:
+        // ),
       ],
+    );
+  }
+
+  Widget _filterDialog(BuildContext context) {
+    double _width = MediaQuery.of(context).size.width;
+    double _height = MediaQuery.of(context).size.height;
+    var containerheight = _height * .354;
+    var _mypadding = SizedBox(height: containerheight * .12);
+    return Scaffold(
+      backgroundColor: Colors.black54,
+      body: Center(
+        child: Container(
+          //height: 50,
+          width: _width * .20,
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(50)),
+          child: AnimatedBuilder(
+            animation: anicontroller,
+            builder: (context, child) {
+              return Transform.rotate(
+                angle: anicontroller.value * 2 * pi,
+                child: child,
+              );
+            },
+            child: Image.asset(
+              "lib/images/roundt.png",
+              fit: BoxFit.contain,
+            ),
+          ),
+        ),
+        // CircularProgressIndicator(
+        //   color: Colors.blue,
+        //   strokeWidth: 20,
+        // ),
+      ),
     );
   }
 
@@ -407,9 +535,15 @@ class _LoginState extends State<Login> {
     //print(_login);
     print(_login.responseBody);
     if (_login.responseCode == 700) {
+      setState(() {
+        showloading = false;
+      });
       showMessage("Network error occured...");
     } else {
       if (_login.responseCode == 200) {
+        setState(() {
+          showloading = false;
+        });
         if (bodyT["username"] != null) {
           print("SEYI BABA");
           Responselogin _logon = Responselogin.fromJson(bodyT);
@@ -427,7 +561,7 @@ class _LoginState extends State<Login> {
           sharedPreferences.setString(
               "refreshToken", _logon.refreshToken!.tokenString!);
           setState(() {
-            emailError = false;
+            //emailError = false;
             showloading = false;
             showData = true;
           });
@@ -439,27 +573,52 @@ class _LoginState extends State<Login> {
           print(userId);
           //var pass = int.parse();
           //print("Araggf = $pass");
-
+          print("jsjs");
           Navigator.pop(context);
-          showData
-              ? Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => Home(int.parse(userId!))))
-              : CircularProgressIndicator();
+          print("show now");
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => Home(int.parse(userId!))));
         }
+        // else {
+        //   print(_login.responseBody);
+        //   print("wahala load");
+        //   return showDialog(
+        //       context: context,
+        //       builder: (BuildContext context) {
+        //         return _filterDialog(context);
+        //       });
+        // }
+        // showData
+        //     ? Navigator.push(
+        //         context,
+        //         MaterialPageRoute(
+        //             builder: (context) => Home(int.parse(userId!))))
+        //     : showDialog(
+        //         context: context,
+        //         builder: (BuildContext context) {
+        //           return _filterDialog(context);
+        //         });
+
       } else if (_login.responseCode == 404) {
         setState(() {
           emailError = true;
+          showloading = false;
         });
-        showMessage("Error occured..Resource not found");
+        showMessage("Invalid Username, Please check and try again");
       } else if (_login.responseCode == 401) {
+        print("401 loadddddd");
+
         setState(() {
           emailError = true;
+          showloading = false;
         });
-        showMessage("Incorrect Login Details, Please check and try again");
+        showMessage("Incorrect Password, Please check and try again");
       } else {
+        print("loadddddd");
         setState(() {
+          print("loadddddderererr");
           showloading = false;
         });
         showMessage("Error encountered....");

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:teller/checkmessage.dart';
+import 'package:teller/countrieslist.dart';
 import 'package:teller/pref.dart';
+import 'package:teller/screendecider.dart';
 import 'package:teller/succes.dart';
 import 'package:teller/walletfund.dart';
 import 'package:teller/welcome.dart';
@@ -14,8 +16,9 @@ import 'package:teller/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:teller/tellerrequest.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_blue/flutter_blue.dart';
+//import 'package:flutter_blue/flutter_blue.dart';
 import 'package:esc_pos_utils/esc_pos_utils.dart';
+import 'loading.dart';
 
 void main() => runApp(ChangeNotifierProvider(
       create: (context) => ServiceClass(),
@@ -24,7 +27,6 @@ void main() => runApp(ChangeNotifierProvider(
 
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
-
   @override
   _MyAppState createState() => _MyAppState();
 }
@@ -33,6 +35,9 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
+      //themeMode: ThemeMode.dark,
+      //darkTheme: ThemeData.dark(),
+      //theme: ThemeData(brightness: Brightness.dark),
       debugShowCheckedModeBanner: false,
       title: "Text",
       home: WelcomeScreen(),
@@ -50,7 +55,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      body: Welcome(),
+      body: ScreenDecider(),
     );
   }
 }

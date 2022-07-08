@@ -24,6 +24,7 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
+  Responselogin? respLog;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   bool buttonActive = false;
   TextEditingController emailC = TextEditingController();
@@ -31,6 +32,7 @@ class _SignUpState extends State<SignUp> {
   TextEditingController coreC = TextEditingController();
   bool networkError = false;
   bool emailError = false;
+  bool getToken = false;
   bool showloading = false;
   String emailErrortext = "Incorrect email address, please enter and try again";
   showMessage(String message,
@@ -49,6 +51,7 @@ class _SignUpState extends State<SignUp> {
 
   @override
   void initState() {
+    mylog();
     super.initState();
   }
 
@@ -343,6 +346,30 @@ class _SignUpState extends State<SignUp> {
   //     Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
   //   }
   // }
+
+  void mylog() {
+    Provider.of<ServiceClass>(context, listen: false)
+        .myLoginn("username", "password")
+        .then((value) => _output(value));
+  }
+
+  Future<void> _output(ResponseLogin logons) async {
+    var bodyT = jsonDecode(logons.responseBody!);
+    if (logons.responseCode == 200) {
+      setState(() {
+        getToken = true;
+        respLog = Responselogin.fromJson(bodyT);
+      });
+      //context.read<ServiceClass>().getToken(respLog!.accessToken!);
+      Provider.of<ServiceClass>(context, listen: false)
+          .getToken(respLog!.accessToken!);
+      Provider.of<ServiceClass>(context, listen: false).getUserToken();
+    } else {
+      setState(() {
+        getToken = false;
+      });
+    }
+  }
 
   void signUp() {
     print("hello seyi araoluwa");

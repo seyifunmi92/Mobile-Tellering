@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
@@ -7,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:teller/cashDepostit.dart';
 import 'package:teller/dailyCollections.dart';
 import 'package:teller/home.dart';
+import 'package:teller/liquidconfirm.dart';
 import 'package:teller/tellerlist.dart';
 import 'package:teller/walletfund.dart';
 import 'package:teller/welcome.dart';
@@ -25,7 +25,8 @@ import 'checkbalance.dart';
 import 'models.dart';
 
 class Liquid extends StatefulWidget {
-  const Liquid({Key? key}) : super(key: key);
+  int ID;
+  Liquid(this.ID);
 
   @override
   _LiquidState createState() => _LiquidState();
@@ -93,8 +94,8 @@ class _LiquidState extends State<Liquid> {
                       TileMode.repeated, // repeats the gradient over the canvas
                 ),
                 borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(25),
-                  bottomRight: Radius.circular(25),
+                  bottomLeft: Radius.circular(0),
+                  bottomRight: Radius.circular(0),
                 ),
               ),
               width: _width,
@@ -114,7 +115,6 @@ class _LiquidState extends State<Liquid> {
                   //     fontFamily: "OpenSans",
                   //   ),
                   // ),
-
                   const SizedBox(
                     height: 20,
                   ),
@@ -133,7 +133,7 @@ class _LiquidState extends State<Liquid> {
                     height: 20,
                   ),
                   const Text(
-                    "Deposit Cash Liquidation",
+                    "Till Liquidation",
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -208,50 +208,80 @@ class _LiquidState extends State<Liquid> {
                   flex: 1,
                   child: Column(
                     children: [
-                      TextField(
-                        controller: loginC,
-                        //controller: emailC,
-                        cursorColor: Colors.blue,
-                        // style: kmediumTextBold(kColorBlack),
-                        keyboardType: TextInputType.emailAddress,
-                        onChanged: (text1) {
-                          if (text1.isNotEmpty) {
-                            setState(() {
-                              buttonActive = true;
-                            });
-                          } else {
-                            setState(() {
-                              buttonActive = false;
-                            });
-                          }
-                          // if (text.contains("@")) {
-                          //   if (text.split("@")[1].contains(".")){
-                          //     setState(() {
-                          //       emailIcon = "email_icon2";
-                          //     });
-                          //   }else{
-                          //     setState(() {
-                          //       emailIcon = "email_icon";
-                          //     });
-                          //   }
-                          // }else{
-                          //   setState(() {
-                          //     emailIcon = "email_icon";
-                          //   });
-                          // }
-                        },
-                        decoration: const InputDecoration(
-                          hintText: "Login User Id",
-                          hintStyle: TextStyle(
-                            fontFamily: "OpenSans",
-                            fontSize: 14,
-                            //fontFamily: "Poppins",
-                            fontWeight: FontWeight.w400,
-                            //color: kColorBlack.withOpacity(.3)),
-                            //border: InputBorder.none,
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: _width * .05,
                           ),
-                        ),
+                          Text(
+                            "Login User ID",
+                            style: TextStyle(
+                              fontFamily: "OpenSans",
+                              color: Colors.grey[900],
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.7,
+                            ),
+                          ),
+                          SizedBox(
+                            width: _width * .45,
+                          ),
+                          Text(
+                            widget.ID.toString(),
+                            style: TextStyle(
+                              fontFamily: "OpenSans",
+                              color: Colors.grey[900],
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.7,
+                            ),
+                          ),
+                        ],
                       ),
+                      // TextField(
+                      //   controller: loginC,
+                      //   //controller: emailC,
+                      //   cursorColor: Colors.blue,
+                      //   // style: kmediumTextBold(kColorBlack),
+                      //   keyboardType: TextInputType.emailAddress,
+                      //   onChanged: (text1) {
+                      //     if (text1.isNotEmpty) {
+                      //       setState(() {
+                      //         buttonActive = true;
+                      //       });
+                      //     } else {
+                      //       setState(() {
+                      //         buttonActive = false;
+                      //       });
+                      //     }
+                      //     // if (text.contains("@")) {
+                      //     //   if (text.split("@")[1].contains(".")){
+                      //     //     setState(() {
+                      //     //       emailIcon = "email_icon2";
+                      //     //     });
+                      //     //   }else{
+                      //     //     setState(() {
+                      //     //       emailIcon = "email_icon";
+                      //     //     });
+                      //     //   }
+                      //     // }else{
+                      //     //   setState(() {
+                      //     //     emailIcon = "email_icon";
+                      //     //   });
+                      //     // }
+                      //   },
+                      //   decoration: const InputDecoration(
+                      //     hintText: "Login User Id",
+                      //     hintStyle: TextStyle(
+                      //       fontFamily: "OpenSans",
+                      //       fontSize: 14,
+                      //       //fontFamily: "Poppins",
+                      //       fontWeight: FontWeight.w400,
+                      //       //color: kColorBlack.withOpacity(.3)),
+                      //       //border: InputBorder.none,
+                      //     ),
+                      //   ),
+                      // ),
                       // const SizedBox(
                       //   height: 20,
                       // ),
@@ -462,7 +492,7 @@ class _LiquidState extends State<Liquid> {
                           // }
                         },
                         decoration: const InputDecoration(
-                          hintText: "Date (dd-mm-yy)",
+                          hintText: "Date (yy-mm-dd)",
                           hintStyle: TextStyle(
                             fontSize: 14,
                             fontFamily: "OpenSans",
@@ -1672,7 +1702,6 @@ class _LiquidState extends State<Liquid> {
               decoration: buttonActive
                   ? BoxDecoration(
                       // ignore: prefer_const_constructors
-
                       gradient: const LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -1696,6 +1725,11 @@ class _LiquidState extends State<Liquid> {
                 onTap: buttonActive
                     ? () {
                         //succesfulSignUp();
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => LiquidConfirm(
+                                    widget.ID, narateC.text, dateC.text)));
                       }
                     : null,
                 child: const Center(
@@ -1718,7 +1752,7 @@ class _LiquidState extends State<Liquid> {
             FutureBuilder(
               future: getSharedData(),
               builder: (context, snapshot) {
-                var _loginuser = snapshot.data!;
+                var _loginuser = snapshot.data ?? null;
                 print("Ararayghsb - $_loginuser");
                 if (snapshot.hasData) {
                   return InkWell(
@@ -1751,4 +1785,11 @@ class _LiquidState extends State<Liquid> {
       ),
     );
   }
+
+  // void liquidCash() {
+  //   ServiceClass serviceClass = ServiceClass();
+  //   serviceClass
+  //       .liquidateCash(loginuserid, transactionreference, trandate, narration)
+  //       .then((value) => null);
+  // }
 }

@@ -65,6 +65,38 @@ class UserRegistration {
       };
 }
 
+class TellerCustomer {
+  TellerCustomer({
+    this.customerid,
+    this.firstname,
+    this.surname,
+    this.accountnumber,
+    this.phone,
+  });
+
+  String? customerid;
+  String? firstname;
+  String? surname;
+  String? accountnumber;
+  String? phone;
+
+  factory TellerCustomer.fromJson(Map<String, dynamic> json) => TellerCustomer(
+        customerid: json["customerid"],
+        firstname: json["firstname"],
+        surname: json["surname"],
+        accountnumber: json["accountnumber"],
+        phone: json["phone"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "customerid": customerid,
+        "firstname": firstname,
+        "surname": surname,
+        "accountnumber": accountnumber,
+        "phone": phone,
+      };
+}
+
 class MobileTellerFund {
   MobileTellerFund({
     this.loginUserId,
@@ -375,6 +407,43 @@ class Responselogin {
       };
 }
 
+class Tellertransaction {
+  Tellertransaction({
+    this.amount,
+    this.transactionReference,
+    this.naration,
+    this.toAccountNumber,
+    this.toAccountName,
+    this.createdate,
+  });
+
+  double? amount;
+  String? transactionReference;
+  String? naration;
+  String? toAccountNumber;
+  String? toAccountName;
+  DateTime? createdate;
+
+  factory Tellertransaction.fromJson(Map<String, dynamic> json) =>
+      Tellertransaction(
+        amount: json["amount"],
+        transactionReference: json["transactionReference"],
+        naration: json["naration"],
+        toAccountNumber: json["toAccountNumber"],
+        toAccountName: json["toAccountName"],
+        createdate: DateTime.parse(json["createdate"]),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "amount": amount,
+        "transactionReference": transactionReference,
+        "naration": naration,
+        "toAccountNumber": toAccountNumber,
+        "toAccountName": toAccountName,
+        "createdate": createdate!.toIso8601String(),
+      };
+}
+
 class RefreshToken {
   RefreshToken({
     this.username,
@@ -440,6 +509,162 @@ class MobileTellerRequestList {
       };
 }
 
+class AccountDetails {
+  AccountDetails({
+    this.id,
+    this.accountnumber,
+    this.accounttitle,
+    this.accountdesc,
+    this.prodname,
+    this.bkbal,
+    this.address,
+    this.bankname,
+    this.phone,
+    this.odProd,
+    this.allowSi,
+    this.siFloor,
+    this.od,
+    this.pendingc,
+    this.cintrate,
+    this.dintrate,
+    this.apptype,
+    this.branch,
+    this.branchcode,
+    this.customerid,
+    this.status,
+    this.prodstatus,
+    this.proddesc,
+    this.effbal,
+    this.charges,
+    this.productCode,
+    this.totalCharge,
+    this.acctty,
+    this.closingCharge,
+    this.officercode,
+    this.disableview,
+    this.source,
+    this.holdbal,
+    this.usebal,
+    this.acctstatus,
+    this.email,
+  });
+
+  int? id;
+  String? accountnumber;
+  String? accounttitle;
+  String? accountdesc;
+  String? prodname;
+  double? bkbal;
+  String? address;
+  String? bankname;
+  String? phone;
+  int? odProd;
+  int? allowSi;
+  double? siFloor;
+  double? od;
+  double? pendingc;
+  double? cintrate;
+  double? dintrate;
+  String? apptype;
+  String? branch;
+  String? branchcode;
+  int? customerid;
+  int? status;
+  int? prodstatus;
+  String? proddesc;
+  double? effbal;
+  double? charges;
+  String? productCode;
+  double? totalCharge;
+  String? acctty;
+  double? closingCharge;
+  dynamic officercode;
+  int? disableview;
+  dynamic source;
+  double? holdbal;
+  double? usebal;
+  String? acctstatus;
+  String? email;
+
+  factory AccountDetails.fromJson(Map<String, dynamic> json) => AccountDetails(
+        id: json["id"],
+        accountnumber: json["accountnumber"],
+        accounttitle: json["accounttitle"],
+        accountdesc: json["accountdesc"],
+        prodname: json["prodname"],
+        bkbal: json["bkbal"].toDouble(),
+        address: json["address"],
+        bankname: json["bankname"],
+        phone: json["phone"],
+        odProd: json["odProd"],
+        allowSi: json["allowSI"],
+        siFloor: json["siFloor"],
+        od: json["od"],
+        pendingc: json["pendingc"],
+        cintrate: json["cintrate"],
+        dintrate: json["dintrate"],
+        apptype: json["apptype"],
+        branch: json["branch"],
+        branchcode: json["branchcode"],
+        customerid: json["customerid"],
+        status: json["status"],
+        prodstatus: json["prodstatus"],
+        proddesc: json["proddesc"],
+        effbal: json["effbal"].toDouble(),
+        charges: json["charges"],
+        productCode: json["productCode"],
+        totalCharge: json["totalCharge"],
+        acctty: json["acctty"],
+        closingCharge: json["closingCharge"],
+        officercode: json["officercode"],
+        disableview: json["disableview"],
+        source: json["source"],
+        holdbal: json["holdbal"],
+        usebal: json["usebal"].toDouble(),
+        acctstatus: json["acctstatus"],
+        email: json["email"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "accountnumber": accountnumber,
+        "accounttitle": accounttitle,
+        "accountdesc": accountdesc,
+        "prodname": prodname,
+        "bkbal": bkbal,
+        "address": address,
+        "bankname": bankname,
+        "phone": phone,
+        "odProd": odProd,
+        "allowSI": allowSi,
+        "siFloor": siFloor,
+        "od": od,
+        "pendingc": pendingc,
+        "cintrate": cintrate,
+        "dintrate": dintrate,
+        "apptype": apptype,
+        "branch": branch,
+        "branchcode": branchcode,
+        "customerid": customerid,
+        "status": status,
+        "prodstatus": prodstatus,
+        "proddesc": proddesc,
+        "effbal": effbal,
+        "charges": charges,
+        "productCode": productCode,
+        "totalCharge": totalCharge,
+        "acctty": acctty,
+        "closingCharge": closingCharge,
+        "officercode": officercode,
+        "disableview": disableview,
+        "source": source,
+        "holdbal": holdbal,
+        "usebal": usebal,
+        "acctstatus": acctstatus,
+        "email": email,
+      };
+}
+
 class RequestDetail {
   RequestDetail({
     this.id,
@@ -477,6 +702,34 @@ class RequestDetail {
         "createdBy": createdBy,
         "approved": approved,
         "status": status,
+      };
+}
+
+class StateList {
+  StateList({
+    this.statecode,
+    this.statename,
+    this.towncode,
+    this.townname,
+  });
+
+  String? statecode;
+  String? statename;
+  String? towncode;
+  String? townname;
+
+  factory StateList.fromJson(Map<String, dynamic> json) => StateList(
+        statecode: json["statecode"],
+        statename: json["statename"],
+        towncode: json["towncode"],
+        townname: json["townname"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "statecode": statecode,
+        "statename": statename,
+        "towncode": towncode,
+        "townname": townname,
       };
 }
 

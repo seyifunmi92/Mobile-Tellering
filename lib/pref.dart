@@ -13,7 +13,7 @@ import 'package:teller/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:teller/tellerrequest.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_blue/flutter_blue.dart';
+//import 'package:flutter_blue/flutter_blue.dart';
 import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

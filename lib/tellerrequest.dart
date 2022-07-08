@@ -14,10 +14,8 @@ import 'package:intl/intl.dart';
 class TellerRequest extends StatefulWidget {
   //int ID;
    //TellerRequest(this.ID);
-
   _TellerRequestState createState() => _TellerRequestState();
 }
-
 class _TellerRequestState extends State<TellerRequest> {
   bool buttonActive = false;
   TextEditingController idC = TextEditingController();
@@ -32,7 +30,6 @@ class _TellerRequestState extends State<TellerRequest> {
   bool networkError = false;
   bool emailError = false;
   bool showloading = false;
-
   String emailErrortext = "Incorrect email address, please enter and try again";
   @override
   void initState() {
@@ -40,9 +37,7 @@ class _TellerRequestState extends State<TellerRequest> {
     super.initState();
   }
   @override
-
   Widget build(BuildContext context) {
-
     return  Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,

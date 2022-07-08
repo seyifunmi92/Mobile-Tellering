@@ -3,10 +3,12 @@ import 'package:teller/welcome.dart';
 
 String baseUrl = "";
 String dataToBeUsed = "";
-const kPrimaryColor = Color(0xFF212759);
+const kPrimaryColor = Color(0xFF100c57);
+//color: Color(0xff100c57),
+
 const kBackgroundHome4 = Color(0xFFE8EDF2);
 const kBackgroundHome3 = Color(0xFFFCF8FD);
-const kBackgroundHome2 = Color(0xFFF7F5FC);
+const kBackgroundHome2 = Color(0xFFFfffff);
 const kBackgroundHome = Color(0xFF1836EB);
 const kSecondaryColor = Color(0xFF00D1FF);
 const kTettiaryColor1 = Color(0xFF0007A9);

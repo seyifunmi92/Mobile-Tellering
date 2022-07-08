@@ -21,12 +21,19 @@ import 'models.dart';
 class TellerList extends StatefulWidget {
   int ID;
   TellerList(this.ID);
-
   @override
   _TellerListState createState() => _TellerListState();
 }
 
 class _TellerListState extends State<TellerList> {
+  getSharedData() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String? username = sharedPreferences.getString("username");
+    print(username);
+    //var seyi = MobileTellerRequestList(loginUserId: int.parse(username!));
+    return username;
+  }
+
   late Future<List<MobileTellerRequestList>> tellerrequestList;
   void setFuture() {
     tellerrequestList = myTellerRequest(widget.ID);
@@ -337,13 +344,28 @@ class _TellerListState extends State<TellerList> {
           Navigator.push(
               context, MaterialPageRoute(builder: (context) => const Teller()));
         },
-        child: const Text(
-          "Back",
-          style: TextStyle(
-            fontFamily: "OpenSans",
-            fontWeight: FontWeight.bold,
-            color: Colors.amberAccent,
-          ),
+        child: FutureBuilder(
+          future: getSharedData(),
+          builder: (context, snapshot) {
+            var _loginuser = snapshot.data ?? null;
+            if (snapshot.hasData) {
+              return InkWell(
+                onTap: () {
+                  print("Bro you gerrit - $_loginuser");
+                  print("Widget - $widget.ID");
+                  //print(TellerList.ID);
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              Home(int.parse(_loginuser.toString()))));
+                },
+                child: const Text("Back"),
+              );
+            } else {
+              return const CircularProgressIndicator();
+            }
+          },
         ),
       ),
     );

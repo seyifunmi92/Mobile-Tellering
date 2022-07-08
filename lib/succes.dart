@@ -114,7 +114,7 @@ class _SuccessState extends State<Success> {
             child: FutureBuilder(
               future: getSharedData(),
               builder: (context, snapshot) {
-                var _loginuser = snapshot.data!;
+                var _loginuser = snapshot.data ?? "";
                 print("Ararayghsb - $_loginuser");
                 if (snapshot.hasData) {
                   return containerCustom(MobileTellerRequestList(

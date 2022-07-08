@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:teller/constants.dart';
+import 'package:teller/loading.dart';
 import 'package:teller/textstyle.dart';
 import 'package:teller/login.dart';
 import 'dart:math';
+import 'package:google_fonts/google_fonts.dart';
 
 class Welcome extends StatefulWidget {
   const Welcome({Key? key}) : super(key: key);
@@ -67,144 +69,134 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
         ),
         Scaffold(
           backgroundColor: Colors.black87,
-          body: Container(
-            width: _width,
-            height: _height,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: Column(
-                children: <Widget>[
-                  const SizedBox(
-                    height: 50,
+          body: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Column(
+              children: <Widget>[
+                SizedBox(
+                  height: _height * .15,
+                ),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const <Widget>[
+                      // SizedBox(
+                      //   width: 140,
+                      // ),
+                    ],
                   ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  const SizedBox(
-                    height: 5,
-                  ),
-                  const SizedBox(
-                    height: 140,
-                  ),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const <Widget>[
-                        SizedBox(
-                          width: 140,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Center(
-                    child: Column(
-                      children: [
-                        //  Text(
-                        //   'WELCOME TO',
-                        //   style: TextStyle(
-                        //     letterSpacing: 0.4,
-                        //     color: Colors.white,
-                        //     fontWeight: FontWeight.bold,
-                        //     fontSize: 20,
-                        //   ),
-                        // ),
-                        // CircleAvatar(
-                        //   backgroundImage: AssetImage("lib/images/tteller.jpg"),
-                        //   radius: 35,
-                        // ),
-                        Container(
-                          height: 80,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Image(
-                            image: AssetImage("lib/images/ttteller.png"),
-                            //color: Colors.black12,
-                            fit: BoxFit.cover,
-                            // height: 30,
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        const Text(
-                          'myTeller',
-                          style: TextStyle(
-                            letterSpacing: 3.0,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w900,
-                            fontFamily: "OpenSans",
-                            fontSize: 30,
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-
-                        const Text(
-                          'APPLICATION',
-                          style: TextStyle(
-                            letterSpacing: 10.0,
-                            fontFamily: "OpenSans",
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 100,
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(15),
-                    decoration: BoxDecoration(
-                      // ignore: prefer_const_constructors
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        // 10% of the width, so there are ten blinds.
-                        // ignore: prefer_const_literals_to_create_immutables
-                        colors: <Color>[
-                          kPrimaryColor,
-                          kSecondaryColor,
-                        ], // red to yellow
-                        tileMode: TileMode
-                            .repeated, // repeats the gradient over the canvas
+                ),
+                Column(
+                  children: [
+                    //  Text(
+                    //   'WELCOME TO',
+                    //   style: TextStyle(
+                    //     letterSpacing: 0.4,
+                    //     color: Colors.white,
+                    //     fontWeight: FontWeight.bold,
+                    //     fontSize: 20,
+                    //   ),
+                    // ),
+                    // CircleAvatar(
+                    //   backgroundImage: AssetImage("lib/images/tteller.jpg"),
+                    //   radius: 35,
+                    // ),
+                    Container(
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      borderRadius: BorderRadius.circular(5),
+                      child: const Image(
+                        image: AssetImage("lib/images/ttteller.png"),
+                        //color: Colors.black12,
+                        fit: BoxFit.cover,
+                        // height: 30,
+                      ),
                     ),
-                    child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          showAnimation = true;
-                          print("gagagag - Animation set");
-                        });
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const Login()));
-                      },
-                      child: const Center(
-                        child: Text(
-                          'CONTINUE',
-                          style: TextStyle(
-                            fontFamily: "OpenSans",
-                            color: Colors.white,
-                            letterSpacing: 2.0,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            // fontFamily: "Poppins",
+                    SizedBox(
+                      height: _height * .03,
+                    ),
+                    const Text(
+                      'myTeller',
+                      style: TextStyle(
+                        letterSpacing: 3.0,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                        fontFamily: "OpenSans",
+                        fontSize: 30,
+                      ),
+                    ),
+                    SizedBox(
+                      height: _height * .03,
+                    ),
+                    Text(
+                      'APPLICATION',
+                      style: GoogleFonts.poppins(
+                        letterSpacing: 10.0,
+                        //fontFamily: "OpenSans",
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: _height * .1),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: _width * .025),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: _width * .95,
+                        height: _height * .053,
+                        decoration: BoxDecoration(
+                          // ignore: prefer_const_constructors
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            // 10% of the width, so there are ten blinds.
+                            // ignore: prefer_const_literals_to_create_immutables
+                            colors: <Color>[
+                              kPrimaryColor,
+                              kSecondaryColor,
+                            ], // red to yellow
+                            tileMode: TileMode
+                                .repeated, // repeats the gradient over the canvas
+                          ),
+                          borderRadius: BorderRadius.circular(0),
+                        ),
+                        child: InkWell(
+                          onTap: () {
+                            setState(() {
+                              showAnimation = true;
+                              print("gagagag - Animation set");
+                            });
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Login()));
+                          },
+                          child: const Center(
+                            child: Text(
+                              'CONTINUE',
+                              style: TextStyle(
+                                fontFamily: "OpenSans",
+                                color: Colors.white,
+                                letterSpacing: 2.0,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                // fontFamily: "Poppins",
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

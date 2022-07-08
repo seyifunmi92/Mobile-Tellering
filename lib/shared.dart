@@ -19,7 +19,6 @@ class SavedData{
    String? token = myPref.getString("token");
    return token;
  }
-
  Future<bool?> saveUser(UserRegistration user)async{
    SharedPreferences myPref = await SharedPreferences.getInstance();
    myPref.setString("email", user.email.toString());

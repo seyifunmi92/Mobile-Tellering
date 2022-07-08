@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_blue/flutter_blue.dart';
+//import 'package:flutter_blue/flutter_blue.dart';
 import 'package:provider/provider.dart';
 import 'package:teller/cashDepostit.dart';
 import 'package:teller/checkmessage.dart';
@@ -37,15 +37,14 @@ class FundTeller extends StatefulWidget {
 class _FundTellerState extends State<FundTeller> {
   bool createNull = false;
   bool showData = false;
-  List<ScanResult>? scanResult;
+  //List<ScanResult>? scanResult;
   RequestDetail? _request;
-  FlutterBlue flutterBlue = FlutterBlue.instance;
+  //FlutterBlue flutterBlue = FlutterBlue.instance;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   bool buttonActive = false;
   TextEditingController loginC = TextEditingController();
   TextEditingController fundingC = TextEditingController();
   bool networkError = false;
-
   showMessage(String message,
       [Duration duration = const Duration(seconds: 4)]) {
     _scaffoldKey.currentState!.showSnackBar(SnackBar(
@@ -76,6 +75,7 @@ class _FundTellerState extends State<FundTeller> {
     double _width = MediaQuery.of(context).size.width;
     double _height = MediaQuery.of(context).size.height;
 
+    // ignore: avoid_unnecessary_containers
     return Container(
       child: Scaffold(
         body: showData
@@ -401,7 +401,6 @@ class _FundTellerState extends State<FundTeller> {
                           fontSize: 20,
                           fontFamily: "OpenSans",
                           letterSpacing: 0,
-                          //fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(
@@ -415,7 +414,6 @@ class _FundTellerState extends State<FundTeller> {
                                 fontSize: 20,
                                 fontFamily: "OpenSans",
                                 letterSpacing: 0,
-                                //fontWeight: FontWeight.bold,
                               ),
                             )
                           : const CircularProgressIndicator()
@@ -843,27 +841,27 @@ class _FundTellerState extends State<FundTeller> {
       showMessage(bodyT["message"]);
     }
   }
+  //
+  // void findBluetoothDevices() {
+  //   flutterBlue.startScan(timeout: const Duration(seconds: 4));
+  //   flutterBlue.scanResults.listen((results) {
+  //     setState(() {
+  //       scanResult = results;
+  //     });
+  //   });
+  //   flutterBlue.stopScan();
+  // }
 
-  void findBluetoothDevices() {
-    flutterBlue.startScan(timeout: const Duration(seconds: 4));
-    flutterBlue.scanResults.listen((results) {
-      setState(() {
-        scanResult = results;
-      });
-    });
-    flutterBlue.stopScan();
-  }
-
-  void printWithDevice(BluetoothDevice device) async {
-    await device.connect();
-    final mygen = Generator(PaperSize.mm58, await CapabilityProfile.load());
-    final printer = BluePrint();
-    printer.addDevice(mygen.text("This is good"));
-    printer.addDevice(mygen.feed(1));
-    printer.addDevice(mygen.text("hello, lets print"));
-    printer.addDevice(mygen.qrcode("https://altospos.com"));
-    printer.addDevice(mygen.text("Congratulations, this is working"));
-  }
+  // void printWithDevice(BluetoothDevice device) async {
+  //   await device.connect();
+  //   final mygen = Generator(PaperSize.mm58, await CapabilityProfile.load());
+  //   final printer = BluePrint();
+  //   printer.addDevice(mygen.text("This is good"));
+  //   printer.addDevice(mygen.feed(1));
+  //   printer.addDevice(mygen.text("hello, lets print"));
+  //   printer.addDevice(mygen.qrcode("https://altospos.com"));
+  //   printer.addDevice(mygen.text("Congratulations, this is working"));
+  // }
 
   void mywalletFund() {
     print("hello seyi araoluwa");

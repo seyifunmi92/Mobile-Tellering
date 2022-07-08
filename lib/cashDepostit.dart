@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,12 +10,10 @@ import 'package:teller/textstyle.dart';
 import 'package:teller/login.dart';
 import 'package:teller/Home.dart';
 import 'package:teller/depositConfirmation.dart';
-
 import 'models.dart';
 
 class CashDeposit extends StatefulWidget {
   const CashDeposit({Key? key}) : super(key: key);
-
   @override
   _CashDepositState createState() => _CashDepositState();
 }
@@ -40,7 +37,6 @@ class _CashDepositState extends State<CashDeposit> {
   }
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-
   showMessage(String message,
       [Duration duration = const Duration(seconds: 4)]) {
     _scaffoldKey.currentState!.showSnackBar(SnackBar(

@@ -740,7 +740,7 @@ class _TellerState extends State<Teller> {
             FutureBuilder(
               future: getSharedData(),
               builder: (context, snapshot) {
-                var _loginuser = snapshot.data!;
+                var _loginuser = snapshot.data ?? null;
                 print("Ararayghsb - $_loginuser");
                 if (snapshot.hasData) {
                   return Container(

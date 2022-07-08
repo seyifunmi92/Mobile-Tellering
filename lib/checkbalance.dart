@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:teller/checkmessage.dart';
 import 'package:teller/succes.dart';
@@ -20,12 +21,13 @@ import 'models.dart';
 class CheckBalance extends StatefulWidget {
   int ID;
   CheckBalance(this.ID);
-
   @override
   _CheckBalanceState createState() => _CheckBalanceState();
 }
 
 class _CheckBalanceState extends State<CheckBalance> {
+  final _format = NumberFormat("#,###,000");
+
   getSharedData() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     String? username = sharedPreferences.getString("username");
@@ -74,7 +76,6 @@ class _CheckBalanceState extends State<CheckBalance> {
     double _height = MediaQuery.of(context).size.height;
     return Scaffold(
       key: _scaffoldKey,
-
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: Column(
@@ -145,10 +146,9 @@ class _CheckBalanceState extends State<CheckBalance> {
                         const SizedBox(
                           height: 20,
                         ),
-
                         showData
                             ? Text(
-                                "₦${customerBalance!.currentbalance.toString()}0",
+                                "₦${_format.format(customerBalance!.currentbalance)}.00",
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 30,
@@ -158,7 +158,6 @@ class _CheckBalanceState extends State<CheckBalance> {
                                 ),
                               )
                             : const CircularProgressIndicator(),
-
                         const SizedBox(
                           height: 10,
                         ),
@@ -211,7 +210,6 @@ class _CheckBalanceState extends State<CheckBalance> {
                                 ),
                               )
                             : const Text(""),
-
                         const SizedBox(
                           height: 20,
                         ),
@@ -316,7 +314,7 @@ class _CheckBalanceState extends State<CheckBalance> {
                     : FutureBuilder(
                         future: getSharedData(),
                         builder: (context, snapshot) {
-                          var _loginuser = snapshot.data!;
+                          var _loginuser = snapshot.data ?? "";
                           print("Ararayghsb - $_loginuser");
                           if (snapshot.hasData) {
                             return Text(
@@ -477,13 +475,13 @@ class _CheckBalanceState extends State<CheckBalance> {
               height: 60,
               color: Colors.grey,
             ),
-            SizedBox(
+            const SizedBox(
               height: 120,
             ),
             FutureBuilder(
               future: getSharedData(),
               builder: (context, snapshot) {
-                var _loginuser = snapshot.data!;
+                var _loginuser = snapshot.data ?? "";
                 print("Ararayghsb - $_loginuser");
                 if (snapshot.hasData) {
                   return Container(
@@ -528,6 +526,7 @@ class _CheckBalanceState extends State<CheckBalance> {
                   return CircularProgressIndicator();
               },
             ),
+            //bodyCustom(customerBalance!.loginUserId.toString()),
           ],
         ),
       ),
@@ -773,7 +772,7 @@ class _CheckBalanceState extends State<CheckBalance> {
     );
   }
 
-  Widget bodyCustom(GetBalance _mydetail) => Column(
+  Widget bodyCustom(String _mydetail) => Column(
         children: [
           const SizedBox(
             height: 50,
@@ -781,13 +780,7 @@ class _CheckBalanceState extends State<CheckBalance> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                _mydetail.loginUserId.toString(),
-                style: const TextStyle(color: Colors.black),
-              ),
-              Text(_mydetail.currentbalance.toString()),
-              Text(_mydetail.totalamountCollected.toString()),
-              Text(_mydetail.amountcollected.toString()),
+              Text(_mydetail),
             ],
           ),
         ],
