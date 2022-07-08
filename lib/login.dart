@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -20,6 +21,9 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  Responselogin? loginData;
+  late AnimationController controller;
+
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   showMessage(String message,
@@ -40,8 +44,22 @@ class _LoginState extends State<Login> {
   bool showloading = false;
   bool buttonOn = false;
   bool networkError = true;
+  bool setAnimation = true;
+  bool showData = false;
   TextEditingController usernameC = TextEditingController();
   TextEditingController passwordC = TextEditingController();
+  SharedPreferences? sharedPreferences;
+  void onChange() {
+    setState(() {
+      setAnimation = false;
+    });
+  }
+
+  @override
+  void initState() {
+    Timer(const Duration(seconds: 20), onChange);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +147,6 @@ class _LoginState extends State<Login> {
                                 buttonOn = false;
                               });
                             }
-
                             // if (text.contains("@")) {
                             //   if (text.split("@")[1].contains(".")){
                             //     setState(() {
@@ -348,8 +365,10 @@ class _LoginState extends State<Login> {
                   ),
                   child: InkWell(
                     onTap: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => SignUp()));
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const SignUp()));
                     },
                     child: const Center(
                       child: Text(
@@ -382,44 +401,68 @@ class _LoginState extends State<Login> {
         .then((value) => output(value));
   }
 
-  void output(ResponseLogin _login) {
+  Future<void> output(ResponseLogin _login) async {
     var bodyT = jsonDecode(_login.responseBody!);
     print("we are in Login - second haven now bro..");
-    print(_login);
-    print(_login.responseCode);
+    //print(_login);
+    print(_login.responseBody);
     if (_login.responseCode == 700) {
       showMessage("Network error occured...");
     } else {
       if (_login.responseCode == 200) {
-        Navigator.pop(context);
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => const Home()));
-        if (bodyT["status"] == "Successful") {
+        if (bodyT["username"] != null) {
+          print("SEYI BABA");
+          Responselogin _logon = Responselogin.fromJson(bodyT);
+          print(_logon);
+          Provider.of<ServiceClass>(context, listen: false).notifyLogin(_logon);
+          SharedPreferences sharedPreferences =
+              await SharedPreferences.getInstance();
+          //sharedPreferences.setString("username", usernameC.text);
+          //sharedPreferences.setString("password", passwordC.text);
+          sharedPreferences.setString("Token", _logon.accessToken!);
+          sharedPreferences.setString("username", _logon.username!);
+          sharedPreferences.setString("role", _logon.role ?? "");
+          sharedPreferences.setString(
+              "originalUserName", _logon.originalUserName!);
+          sharedPreferences.setString(
+              "refreshToken", _logon.refreshToken!.tokenString!);
           setState(() {
             emailError = false;
             showloading = false;
+            showData = true;
           });
-          login _logon = login.fromJson(bodyT["data"]);
-          Provider.of<ServiceClass>(context, listen: false).notifyLogin(_logon);
-          print(_logon);
-        } else {
-          if (_login.responseCode == 404) {
-            setState(() {
-              emailError = true;
-            });
-            showMessage("Error occured..Resource not found");
-          } else if (_login.responseCode == 401) {
-            setState(() {
-              emailError = true;
-            });
-            showMessage("Incorrect Password, Please try again");
-          } else {
-            setState(() {
-              showloading = false;
-            });
-            showMessage("Error encountered....");
-          }
+          var userId = sharedPreferences.getString("username");
+          var myshared = sharedPreferences.getString("Token");
+          var _myshared = sharedPreferences.getString("password");
+          print("Lets get shared data");
+          print(myshared);
+          print(userId);
+          //var pass = int.parse();
+          //print("Araggf = $pass");
+
+          Navigator.pop(context);
+          showData
+              ? Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => Home(int.parse(userId!))))
+              : CircularProgressIndicator();
         }
+      } else if (_login.responseCode == 404) {
+        setState(() {
+          emailError = true;
+        });
+        showMessage("Error occured..Resource not found");
+      } else if (_login.responseCode == 401) {
+        setState(() {
+          emailError = true;
+        });
+        showMessage("Incorrect Login Details, Please check and try again");
+      } else {
+        setState(() {
+          showloading = false;
+        });
+        showMessage("Error encountered....");
       }
     }
   }

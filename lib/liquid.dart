@@ -1,28 +1,37 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:teller/cashDepostit.dart';
+import 'package:teller/dailyCollections.dart';
+import 'package:teller/home.dart';
+import 'package:teller/tellerlist.dart';
+import 'package:teller/walletfund.dart';
 import 'package:teller/welcome.dart';
 import 'package:teller/welcome.dart';
 import 'package:teller/services.dart';
 import 'package:teller/constants.dart';
 import 'package:teller/textstyle.dart';
 import 'package:teller/login.dart';
-import 'package:teller/Home.dart';
-import 'package:teller/depositConfirmation.dart';
-
+import 'package:teller/teller.dart';
+import 'package:teller/customer.dart';
+import 'package:teller/openAccount.dart';
+import 'package:teller/summaryAccount.dart';
+import 'package:teller/models.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'checkbalance.dart';
 import 'models.dart';
 
-class CashDeposit extends StatefulWidget {
-  const CashDeposit({Key? key}) : super(key: key);
+class Liquid extends StatefulWidget {
+  const Liquid({Key? key}) : super(key: key);
 
   @override
-  _CashDepositState createState() => _CashDepositState();
+  _LiquidState createState() => _LiquidState();
 }
 
-class _CashDepositState extends State<CashDeposit> {
-  bool transferSuccess = false;
+class _LiquidState extends State<Liquid> {
   bool buttonActive = false;
   TextEditingController loginC = TextEditingController();
   TextEditingController dateC = TextEditingController();
@@ -40,7 +49,6 @@ class _CashDepositState extends State<CashDeposit> {
   }
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-
   showMessage(String message,
       [Duration duration = const Duration(seconds: 4)]) {
     _scaffoldKey.currentState!.showSnackBar(SnackBar(
@@ -55,7 +63,6 @@ class _CashDepositState extends State<CashDeposit> {
     ));
   }
 
-  ResponseObject? transfer;
   GetBalance? customerBalance;
   bool showData = false;
   bool showBalance = false;
@@ -66,11 +73,6 @@ class _CashDepositState extends State<CashDeposit> {
     double _width = MediaQuery.of(context).size.width;
     double _height = MediaQuery.of(context).size.height;
     return Scaffold(
-      // appBar: AppBar(
-      //   automaticallyImplyLeading: false,
-      //   title: const Text("Cash Deposit"),
-      //   centerTitle: true,
-      // ),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: Column(
@@ -131,10 +133,10 @@ class _CashDepositState extends State<CashDeposit> {
                     height: 20,
                   ),
                   const Text(
-                    "Deposit Cash",
+                    "Deposit Cash Liquidation",
                     style: TextStyle(
-                      fontWeight: FontWeight.bold,
                       color: Colors.white,
+                      fontWeight: FontWeight.bold,
                       fontSize: 20,
                       fontFamily: "OpenSans",
                       letterSpacing: 0,
@@ -178,6 +180,7 @@ class _CashDepositState extends State<CashDeposit> {
             // Center(
             //   child:
             // ),
+
             const Text(
               "Please enter the following details",
               style: TextStyle(
@@ -188,10 +191,10 @@ class _CashDepositState extends State<CashDeposit> {
               ),
             ),
             const SizedBox(
-              height: 20,
+              height: 70,
             ),
             Container(
-              padding: EdgeInsets.all(10),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
                 color: Colors.white,
@@ -249,118 +252,118 @@ class _CashDepositState extends State<CashDeposit> {
                           ),
                         ),
                       ),
+                      // const SizedBox(
+                      //   height: 20,
+                      // ),
+                      // TextField(
+                      //   controller: acctC,
+                      //   //controller: emailC,
+                      //   cursorColor: Colors.blue,
+                      //   // style: kmediumTextBold(kColorBlack),
+                      //   keyboardType: TextInputType.number,
+                      //   onChanged: (text2) {
+                      //     if (acctC.text.isNotEmpty || text2.isNotEmpty) {
+                      //       setState(() {
+                      //         buttonActive = true;
+                      //       });
+                      //     } else if (acctC.text.isEmpty || text2.isEmpty) {
+                      //       setState(() {
+                      //         buttonActive = false;
+                      //       });
+                      //     } else if (acctC.text.isNotEmpty ||
+                      //         loginC.text.isEmpty) {
+                      //       setState(() {
+                      //         buttonActive = false;
+                      //       });
+                      //     } else {
+                      //       setState(() {
+                      //         buttonActive = false;
+                      //       });
+                      //     }
+                      //     // if (text.contains("@")) {
+                      //     //   if (text.split("@")[1].contains(".")){
+                      //     //     setState(() {
+                      //     //       emailIcon = "email_icon2";
+                      //     //     });
+                      //     //   }else{
+                      //     //     setState(() {
+                      //     //       emailIcon = "email_icon";
+                      //     //     });
+                      //     //   }
+                      //     // }else{
+                      //     //   setState(() {
+                      //     //     emailIcon = "email_icon";
+                      //     //   });
+                      //     // }
+                      //   },
+                      //   decoration: const InputDecoration(
+                      //     hintText: "Account Number",
+                      //     hintStyle: TextStyle(
+                      //       fontSize: 14,
+                      //       fontFamily: "OpenSans",
+                      //       fontWeight: FontWeight.w400,
+                      //       //color: kColorBlack.withOpacity(.3)),
+                      //       //border: InputBorder.none,
+                      //     ),
+                      //   ),
+                      // ),
                       const SizedBox(
-                        height: 20,
+                        height: 0,
                       ),
-                      TextField(
-                        controller: acctC,
-                        //controller: emailC,
-                        cursorColor: Colors.blue,
-                        // style: kmediumTextBold(kColorBlack),
-                        keyboardType: TextInputType.number,
-                        onChanged: (text2) {
-                          if (acctC.text.isNotEmpty || text2.isNotEmpty) {
-                            setState(() {
-                              buttonActive = true;
-                            });
-                          } else if (acctC.text.isEmpty || text2.isEmpty) {
-                            setState(() {
-                              buttonActive = false;
-                            });
-                          } else if (acctC.text.isNotEmpty ||
-                              loginC.text.isEmpty) {
-                            setState(() {
-                              buttonActive = false;
-                            });
-                          } else {
-                            setState(() {
-                              buttonActive = false;
-                            });
-                          }
-                          // if (text.contains("@")) {
-                          //   if (text.split("@")[1].contains(".")){
-                          //     setState(() {
-                          //       emailIcon = "email_icon2";
-                          //     });
-                          //   }else{
-                          //     setState(() {
-                          //       emailIcon = "email_icon";
-                          //     });
-                          //   }
-                          // }else{
-                          //   setState(() {
-                          //     emailIcon = "email_icon";
-                          //   });
-                          // }
-                        },
-                        decoration: const InputDecoration(
-                          hintText: "Account Number",
-                          hintStyle: TextStyle(
-                            fontSize: 14,
-                            fontFamily: "OpenSans",
-                            fontWeight: FontWeight.w400,
-                            //color: kColorBlack.withOpacity(.3)),
-                            //border: InputBorder.none,
-                          ),
-                        ),
-                      ),
+                      // TextField(
+                      //   controller: acctNameC,
+                      //   //controller: emailC,
+                      //   cursorColor: Colors.blue,
+                      //   // style: kmediumTextBold(kColorBlack),
+                      //   keyboardType: TextInputType.number,
+                      //   onChanged: (text2) {
+                      //     if (acctNameC.text.isNotEmpty || text2.isNotEmpty) {
+                      //       setState(() {
+                      //         buttonActive = true;
+                      //       });
+                      //     } else if (acctNameC.text.isEmpty || text2.isEmpty) {
+                      //       setState(() {
+                      //         buttonActive = false;
+                      //       });
+                      //     } else if (acctNameC.text.isNotEmpty ||
+                      //         loginC.text.isEmpty) {
+                      //       setState(() {
+                      //         buttonActive = false;
+                      //       });
+                      //     } else {
+                      //       setState(() {
+                      //         buttonActive = false;
+                      //       });
+                      //     }
+                      //     // if (text.contains("@")) {
+                      //     //   if (text.split("@")[1].contains(".")){
+                      //     //     setState(() {
+                      //     //       emailIcon = "email_icon2";
+                      //     //     });
+                      //     //   }else{
+                      //     //     setState(() {
+                      //     //       emailIcon = "email_icon";
+                      //     //     });
+                      //     //   }
+                      //     // }else{
+                      //     //   setState(() {
+                      //     //     emailIcon = "email_icon";
+                      //     //   });
+                      //     // }
+                      //   },
+                      //   decoration: const InputDecoration(
+                      //     hintText: "Account Name",
+                      //     hintStyle: TextStyle(
+                      //       fontSize: 14,
+                      //       fontFamily: "OpenSans",
+                      //       fontWeight: FontWeight.w400,
+                      //       //color: kColorBlack.withOpacity(.3)),
+                      //       //border: InputBorder.none,
+                      //     ),
+                      //   ),
+                      // ),
                       const SizedBox(
-                        height: 20,
-                      ),
-                      TextField(
-                        controller: acctNameC,
-                        //controller: emailC,
-                        cursorColor: Colors.blue,
-                        // style: kmediumTextBold(kColorBlack),
-                        keyboardType: TextInputType.number,
-                        onChanged: (text2) {
-                          if (acctNameC.text.isNotEmpty || text2.isNotEmpty) {
-                            setState(() {
-                              buttonActive = true;
-                            });
-                          } else if (acctNameC.text.isEmpty || text2.isEmpty) {
-                            setState(() {
-                              buttonActive = false;
-                            });
-                          } else if (acctNameC.text.isNotEmpty ||
-                              loginC.text.isEmpty) {
-                            setState(() {
-                              buttonActive = false;
-                            });
-                          } else {
-                            setState(() {
-                              buttonActive = false;
-                            });
-                          }
-                          // if (text.contains("@")) {
-                          //   if (text.split("@")[1].contains(".")){
-                          //     setState(() {
-                          //       emailIcon = "email_icon2";
-                          //     });
-                          //   }else{
-                          //     setState(() {
-                          //       emailIcon = "email_icon";
-                          //     });
-                          //   }
-                          // }else{
-                          //   setState(() {
-                          //     emailIcon = "email_icon";
-                          //   });
-                          // }
-                        },
-                        decoration: const InputDecoration(
-                          hintText: "Account Name",
-                          hintStyle: TextStyle(
-                            fontSize: 14,
-                            fontFamily: "OpenSans",
-                            fontWeight: FontWeight.w400,
-                            //color: kColorBlack.withOpacity(.3)),
-                            //border: InputBorder.none,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 20,
+                        height: 40,
                       ),
                       TextField(
                         controller: narateC,
@@ -415,7 +418,7 @@ class _CashDepositState extends State<CashDeposit> {
                         ),
                       ),
                       const SizedBox(
-                        height: 20,
+                        height: 40,
                       ),
                       TextField(
                         controller: dateC,
@@ -527,58 +530,58 @@ class _CashDepositState extends State<CashDeposit> {
                       // const SizedBox(
                       //   height: 20,
                       // ),
-                      TextField(
-                        controller: amtC,
-                        //controller: emailC,
-                        cursorColor: Colors.blue,
-                        // style: kmediumTextBold(kColorBlack),
-                        keyboardType: TextInputType.number,
-                        onChanged: (text2) {
-                          if (amtC.text.isNotEmpty || text2.isNotEmpty) {
-                            setState(() {
-                              buttonActive = true;
-                            });
-                          } else if (amtC.text.isEmpty || text2.isEmpty) {
-                            setState(() {
-                              buttonActive = false;
-                            });
-                          } else if (amtC.text.isNotEmpty ||
-                              loginC.text.isEmpty) {
-                            setState(() {
-                              buttonActive = false;
-                            });
-                          } else {
-                            setState(() {
-                              buttonActive = false;
-                            });
-                          }
-                          // if (text.contains("@")) {
-                          //   if (text.split("@")[1].contains(".")){
-                          //     setState(() {
-                          //       emailIcon = "email_icon2";
-                          //     });
-                          //   }else{
-                          //     setState(() {
-                          //       emailIcon = "email_icon";
-                          //     });
-                          //   }
-                          // }else{
-                          //   setState(() {
-                          //     emailIcon = "email_icon";
-                          //   });
-                          // }
-                        },
-                        decoration: const InputDecoration(
-                          hintText: "Amount (₦)",
-                          hintStyle: TextStyle(
-                            fontSize: 14,
-                            fontFamily: "OpenSans",
-                            fontWeight: FontWeight.w400,
-                            //color: kColorBlack.withOpacity(.3)),
-                            //border: InputBorder.none,
-                          ),
-                        ),
-                      ),
+                      // TextField(
+                      //   controller: amtC,
+                      //   //controller: emailC,
+                      //   cursorColor: Colors.blue,
+                      //   // style: kmediumTextBold(kColorBlack),
+                      //   keyboardType: TextInputType.number,
+                      //   onChanged: (text2) {
+                      //     if (amtC.text.isNotEmpty || text2.isNotEmpty) {
+                      //       setState(() {
+                      //         buttonActive = true;
+                      //       });
+                      //     } else if (amtC.text.isEmpty || text2.isEmpty) {
+                      //       setState(() {
+                      //         buttonActive = false;
+                      //       });
+                      //     } else if (amtC.text.isNotEmpty ||
+                      //         loginC.text.isEmpty) {
+                      //       setState(() {
+                      //         buttonActive = false;
+                      //       });
+                      //     } else {
+                      //       setState(() {
+                      //         buttonActive = false;
+                      //       });
+                      //     }
+                      //     // if (text.contains("@")) {
+                      //     //   if (text.split("@")[1].contains(".")){
+                      //     //     setState(() {
+                      //     //       emailIcon = "email_icon2";
+                      //     //     });
+                      //     //   }else{
+                      //     //     setState(() {
+                      //     //       emailIcon = "email_icon";
+                      //     //     });
+                      //     //   }
+                      //     // }else{
+                      //     //   setState(() {
+                      //     //     emailIcon = "email_icon";
+                      //     //   });
+                      //     // }
+                      //   },
+                      //   decoration: const InputDecoration(
+                      //     hintText: "Amount (₦)",
+                      //     hintStyle: TextStyle(
+                      //       fontSize: 14,
+                      //       fontFamily: "OpenSans",
+                      //       fontWeight: FontWeight.w400,
+                      //       //color: kColorBlack.withOpacity(.3)),
+                      //       //border: InputBorder.none,
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -1661,11 +1664,11 @@ class _CashDepositState extends State<CashDeposit> {
             //   ),
             // ),
             const SizedBox(
-              height: 80,
+              height: 150,
             ),
             Container(
-              height: 40,
-              width: 350,
+              height: 50,
+              width: 370,
               decoration: buttonActive
                   ? BoxDecoration(
                       // ignore: prefer_const_constructors
@@ -1747,34 +1750,5 @@ class _CashDepositState extends State<CashDeposit> {
         ),
       ),
     );
-  }
-
-  void depositCashTeller(
-      int loginuserid,
-      String transactionreference,
-      DateTime trandate,
-      String narration,
-      String accountnumber,
-      String acctname,
-      int amount) {
-    print("Oluwasseyfunmi, lets deposit now");
-    ServiceClass serviceClass = ServiceClass();
-    serviceClass
-        .depositCash(loginuserid, transactionreference, trandate, narration,
-            accountnumber, acctname, amount)
-        .then((value) => output(value));
-  }
-
-  output(String body) {
-    var bodyT = jsonDecode(body);
-    print("Lets kill this bro - payment");
-    print(body);
-
-    if (bodyT == "00") {
-      setState(() {
-        //transfer = Respo;
-        transferSuccess = true;
-      });
-    }
   }
 }

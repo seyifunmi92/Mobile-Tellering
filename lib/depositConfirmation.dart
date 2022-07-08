@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:teller/welcome.dart';
 import 'package:teller/welcome.dart';
 import 'package:teller/services.dart';
@@ -9,6 +10,7 @@ import 'package:teller/login.dart';
 import 'package:teller/Home.dart';
 import 'package:teller/depositConfirmation.dart';
 
+import 'models.dart';
 
 class DepositConfirmation extends StatefulWidget {
   const DepositConfirmation({Key? key}) : super(key: key);
@@ -18,6 +20,35 @@ class DepositConfirmation extends StatefulWidget {
 }
 
 class _DepositConfirmationState extends State<DepositConfirmation> {
+  getSharedData() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String? username = sharedPreferences.getString("username");
+    print(username);
+    //var seyi = MobileTellerRequestList(loginUserId: int.parse(username!));
+    return username;
+  }
+
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  showMessage(String message,
+      [Duration duration = const Duration(seconds: 4)]) {
+    _scaffoldKey.currentState!.showSnackBar(SnackBar(
+      content: Text(message),
+      duration: duration,
+      action: SnackBarAction(
+        label: "CLOSE",
+        onPressed: () {
+          _scaffoldKey.currentState!.removeCurrentSnackBar();
+        },
+      ),
+    ));
+  }
+
+  GetBalance? customerBalance;
+  bool showData = false;
+  bool showBalance = false;
+  bool loading = false;
+  bool userData = true;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,10 +80,12 @@ class _DepositConfirmationState extends State<DepositConfirmation> {
                     children: const [
                       CircleAvatar(
                         radius: 40,
-                        backgroundImage: AssetImage("lib/images/saleoimage.jpeg"),
-
+                        backgroundImage:
+                            AssetImage("lib/images/saleoimage.jpeg"),
                       ),
-                      SizedBox(height: 10,),
+                      SizedBox(
+                        height: 10,
+                      ),
                       // Text("SELECT ACCOUNT FOR DEPOSIT",
                       //   style: TextStyle(
                       //     fontWeight: FontWeight.bold,
@@ -60,7 +93,9 @@ class _DepositConfirmationState extends State<DepositConfirmation> {
                       //     fontSize: 20,
                       //   ),
                       // ),
-                      SizedBox(height: 20,),
+                      SizedBox(
+                        height: 20,
+                      ),
 
                       // Container(
                       //   width: 260,
@@ -140,14 +175,19 @@ class _DepositConfirmationState extends State<DepositConfirmation> {
                   //     ),
                   //   ),
                   // ),
-                  const SizedBox(height: 0,),
-                  const Text("Customer Name : Oluwatobi Adeleke",
+                  const SizedBox(
+                    height: 0,
+                  ),
+                  const Text(
+                    "Customer Name : Oluwatobi Adeleke",
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 30,),
+                  const SizedBox(
+                    height: 30,
+                  ),
 
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -165,44 +205,48 @@ class _DepositConfirmationState extends State<DepositConfirmation> {
                             height: 60,
                             child: Column(
                               children: [
-                                const SizedBox(height: 10,),
-                                Row(
-                                    children : [
-                                      const SizedBox( width: 20,),
-                                      // InkWell(
-                                      //   onTap: (){},
-                                      //   child: const CircleAvatar(
-                                      //     backgroundColor: Colors.white,
-                                      //     radius: 5,
-                                      //   ),
-                                      // ),
-                                      const SizedBox(width: 20,),
-                                      Column(
-                                        children: const [
-
-                                          Text("Customer Account 1 : 012345738",
-                                            style: TextStyle(
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          Text("Account Balance : \$200",
-                                            style: TextStyle(
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ]
+                                const SizedBox(
+                                  height: 10,
                                 ),
+                                Row(children: [
+                                  const SizedBox(
+                                    width: 20,
+                                  ),
+                                  // InkWell(
+                                  //   onTap: (){},
+                                  //   child: const CircleAvatar(
+                                  //     backgroundColor: Colors.white,
+                                  //     radius: 5,
+                                  //   ),
+                                  // ),
+                                  const SizedBox(
+                                    width: 20,
+                                  ),
+                                  Column(
+                                    children: const [
+                                      Text(
+                                        "Customer Account 1 : 012345738",
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        "Account Balance : \$200",
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ]),
                               ],
                             ),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(5),
                               color: Colors.grey,
                             ),
-
                           ),
 
                           // SizedBox(height: 10,),
@@ -290,9 +334,7 @@ class _DepositConfirmationState extends State<DepositConfirmation> {
                           //   ),
                           //   color: Colors.grey,
                           // ),
-
                         ],
-
                       ),
                     ),
                     // Container(
@@ -798,7 +840,6 @@ class _DepositConfirmationState extends State<DepositConfirmation> {
                     //   ),
                     //   color: Colors.black26,
                     // ),
-
                   ),
                   //       Container(
                   //         decoration: BoxDecoration(
@@ -831,22 +872,29 @@ class _DepositConfirmationState extends State<DepositConfirmation> {
                   //     ],
                   //   ),
                   // ),
-                  const SizedBox(height: 20,),
+                  const SizedBox(
+                    height: 20,
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: const [
-                      Text("Deposit Amount:",
+                      Text(
+                        "Deposit Amount:",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10,),
+                  const SizedBox(
+                    height: 10,
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
-                    children:  [
-                      const SizedBox(width: 10,),
+                    children: [
+                      const SizedBox(
+                        width: 10,
+                      ),
                       Container(
                         width: 320,
                         decoration: BoxDecoration(
@@ -877,25 +925,30 @@ class _DepositConfirmationState extends State<DepositConfirmation> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10,),
+                  const SizedBox(
+                    height: 10,
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: const [
-                      Text("Amount in words:",
-
+                      Text(
+                        "Amount in words:",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                        ),),
+                        ),
+                      ),
                     ],
                   ),
-                  SizedBox(height: 10,),
+                  SizedBox(
+                    height: 10,
+                  ),
 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
-                    children:  [
-                      const SizedBox(width: 10,),
-
-
+                    children: [
+                      const SizedBox(
+                        width: 10,
+                      ),
                       Container(
                         width: 320,
                         decoration: BoxDecoration(
@@ -926,25 +979,30 @@ class _DepositConfirmationState extends State<DepositConfirmation> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 10,),
+                  SizedBox(
+                    height: 10,
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: const [
-                      Text("Enter Narration:",
-
+                      Text(
+                        "Enter Narration:",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                        ),),
+                        ),
+                      ),
                     ],
                   ),
-                  SizedBox(height: 10,),
+                  SizedBox(
+                    height: 10,
+                  ),
 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
-                    children:  [
-                      const SizedBox(width: 10,),
-
-
+                    children: [
+                      const SizedBox(
+                        width: 10,
+                      ),
                       Container(
                         width: 320,
                         decoration: BoxDecoration(
@@ -975,11 +1033,12 @@ class _DepositConfirmationState extends State<DepositConfirmation> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20,),
+                  const SizedBox(
+                    height: 20,
+                  ),
 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-
                     children: [
                       Container(
                         height: 40,
@@ -996,15 +1055,19 @@ class _DepositConfirmationState extends State<DepositConfirmation> {
                               kPrimaryColor,
                               kSecondaryColor,
                             ], // red to yellow
-                            tileMode:
-                            TileMode.repeated, // repeats the gradient over the canvas
+                            tileMode: TileMode
+                                .repeated, // repeats the gradient over the canvas
                           ),
                         ),
                         child: Row(
                           children: [
                             InkWell(
                               onTap: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => DepositConfirmation()));
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            DepositConfirmation()));
                               },
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -1034,7 +1097,9 @@ class _DepositConfirmationState extends State<DepositConfirmation> {
                           ],
                         ),
                       ),
-                      const SizedBox(width: 30,),
+                      const SizedBox(
+                        width: 30,
+                      ),
 
                       // SizedBox(height: 20,),
                       Container(
@@ -1052,8 +1117,8 @@ class _DepositConfirmationState extends State<DepositConfirmation> {
                               kPrimaryColor,
                               kSecondaryColor,
                             ], // red to yellow
-                            tileMode:
-                            TileMode.repeated, // repeats the gradient over the canvas
+                            tileMode: TileMode
+                                .repeated, // repeats the gradient over the canvas
                           ),
                         ),
                         child: InkWell(
@@ -1081,60 +1146,113 @@ class _DepositConfirmationState extends State<DepositConfirmation> {
                             ],
                           ),
                         ),
-                       ),
+                      ),
                     ],
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 70,),
-            Container(
-              height: 40,
-              width: 350,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                // ignore: prefer_const_constructors
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  // 10% of the width, so there are ten blinds.
-                  // ignore: prefer_const_literals_to_create_immutables
-                  colors: <Color>[
-                    kPrimaryColor,
-                    kSecondaryColor,
-                  ], // red to yellow
-                  tileMode:
-                  TileMode.repeated, // repeats the gradient over the canvas
-                ),
-              ),
-              child: InkWell(
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const Home()));
-                  // Navigator.push(context, MaterialPageRoute(builder:(context)  => Home()));
-                },
-                child: Row(
-                  children: const <Widget>[
-                    SizedBox(width: 120,),
-
-                    // Icon(
-                    //   Icons.atm_sharp,
-                    // ),
-                    // SizedBox(
-                    //   width: 0,
-                    // ),
-                    Center(
-                      child: Text(
-                        "Back To Menu",
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white,
+            const SizedBox(
+              height: 70,
+            ),
+            FutureBuilder(
+              future: getSharedData(),
+              builder: (context, snapshot) {
+                var _loginuser = snapshot.data!;
+                print("Ararayghsb - $_loginuser");
+                if (snapshot.hasData) {
+                  return Container(
+                      width: 320,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        // ignore: prefer_const_constructors
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          // 10% of the width, so there are ten blinds.
+                          // ignore: prefer_const_literals_to_create_immutables
+                          colors: <Color>[
+                            kPrimaryColor,
+                            kSecondaryColor,
+                          ], // red to yellow
+                          tileMode: TileMode
+                              .repeated, // repeats the gradient over the canvas
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
+                      child: InkWell(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Home(
+                                        int.parse(_loginuser.toString()))));
+                          },
+                          child: const Center(
+                            child: Text(
+                              "BACK TO MENU",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.0,
+                                fontSize: 12,
+                              ),
+                            ),
+                          )));
+                } else
+                  return CircularProgressIndicator();
+              },
             ),
+            //   Container(
+            //     height: 40,
+            //     width: 350,
+            //     decoration: BoxDecoration(
+            //       borderRadius: BorderRadius.circular(15),
+            //       // ignore: prefer_const_constructors
+            //       gradient: LinearGradient(
+            //         begin: Alignment.topLeft,
+            //         end: Alignment.bottomRight,
+            //         // 10% of the width, so there are ten blinds.
+            //         // ignore: prefer_const_literals_to_create_immutables
+            //         colors: <Color>[
+            //           kPrimaryColor,
+            //           kSecondaryColor,
+            //         ], // red to yellow
+            //         tileMode:
+            //             TileMode.repeated, // repeats the gradient over the canvas
+            //       ),
+            //     ),
+            //     child: InkWell(
+            //       onTap: () {
+            //         Navigator.push(context,
+            //             MaterialPageRoute(builder: (context) =>  Home(customerBalance!.loginUserId!)));
+            //         // Navigator.push(context, MaterialPageRoute(builder:(context)  => Home()));
+            //       },
+            //       child: Row(
+            //         children: const <Widget>[
+            //           SizedBox(
+            //             width: 120,
+            //           ),
+
+            //           // Icon(
+            //           //   Icons.atm_sharp,
+            //           // ),
+            //           // SizedBox(
+            //           //   width: 0,
+            //           // ),
+            //           Center(
+            //             child: Text(
+            //               "Back To Menu",
+            //               style: TextStyle(
+            //                 fontSize: 16,
+            //                 color: Colors.white,
+            //               ),
+            //             ),
+            //           ),
+            //         ],
+            //       ),
+            //   ),
+            //),
           ],
         ),
       ),

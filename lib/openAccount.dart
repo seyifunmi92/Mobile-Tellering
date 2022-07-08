@@ -11,7 +11,7 @@ import 'package:teller/teller.dart';
 import 'package:teller/customer.dart';
 import 'package:teller/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'models.dart';
 
 class OpenAccount extends StatefulWidget {
   const OpenAccount({Key? key}) : super(key: key);
@@ -21,17 +21,44 @@ class OpenAccount extends StatefulWidget {
 }
 
 class _OpenAccountState extends State<OpenAccount> {
+  getSharedData() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String? username = sharedPreferences.getString("username");
+    print(username);
+    //var seyi = MobileTellerRequestList(loginUserId: int.parse(username!));
+    return username;
+  }
+
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  showMessage(String message,
+      [Duration duration = const Duration(seconds: 4)]) {
+    _scaffoldKey.currentState!.showSnackBar(SnackBar(
+      content: Text(message),
+      duration: duration,
+      action: SnackBarAction(
+        label: "CLOSE",
+        onPressed: () {
+          _scaffoldKey.currentState!.removeCurrentSnackBar();
+        },
+      ),
+    ));
+  }
+
+  GetBalance? customerBalance;
+  bool showData = false;
+  bool showBalance = false;
+  bool loading = false;
+  bool userData = true;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kBackgroundHome2,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text("Account Opening Form",
-        style: TextStyle(
-          fontFamily: "OpenSans"
-
-        ),
+        title: const Text(
+          "Account Opening Form",
+          style: TextStyle(fontFamily: "OpenSans"),
         ),
         centerTitle: true,
         // toolbarHeight: 180,
@@ -120,7 +147,7 @@ class _OpenAccountState extends State<OpenAccount> {
       // ),
 
       body: SingleChildScrollView(
-         scrollDirection: Axis.vertical,
+        scrollDirection: Axis.vertical,
         // child: Column(
         //   children: <Widget>[
         //     const SizedBox(
@@ -510,10 +537,11 @@ class _OpenAccountState extends State<OpenAccount> {
         //   ],
         // ),
 
-
-        child : Column(
+        child: Column(
           children: [
-            const SizedBox(height: 100,),
+            const SizedBox(
+              height: 100,
+            ),
             Center(
               child: Container(
                 width: 320,
@@ -530,8 +558,8 @@ class _OpenAccountState extends State<OpenAccount> {
                       kPrimaryColor,
                       kSecondaryColor,
                     ], // red to yellow
-                    tileMode:
-                    TileMode.repeated, // repeats the gradient over the canvas
+                    tileMode: TileMode
+                        .repeated, // repeats the gradient over the canvas
                   ),
                   // ignore: prefer_const_literals_to_create_immutables
                   boxShadow: [
@@ -564,12 +592,10 @@ class _OpenAccountState extends State<OpenAccount> {
                           Text(
                             " Summary Collections For Today",
                             style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 17,
-                              color: Colors.white,
-                              fontFamily: "OpenSans"
-
-                            ),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 17,
+                                color: Colors.white,
+                                fontFamily: "OpenSans"),
                           ),
                         ],
                       ),
@@ -593,11 +619,10 @@ class _OpenAccountState extends State<OpenAccount> {
                                     child: Text(
                                       "                           System Date : May 4, 2022",
                                       style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12,
-                                        color: Colors.white,
-                                          fontFamily: "OpenSans"
-                                      ),
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                          color: Colors.white,
+                                          fontFamily: "OpenSans"),
                                     ),
                                   ),
                                 ],
@@ -605,16 +630,13 @@ class _OpenAccountState extends State<OpenAccount> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: const [
-
                                   Text(
                                     "                            Calendar Date : May 5, 2022",
                                     style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12,
-                                      color: Colors.white,
-                                        fontFamily: "OpenSans"
-
-                                    ),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
+                                        color: Colors.white,
+                                        fontFamily: "OpenSans"),
                                   ),
                                 ],
                               ),
@@ -625,24 +647,20 @@ class _OpenAccountState extends State<OpenAccount> {
                                   Text(
                                     "                     Teller ID : 1025",
                                     style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12,
-                                      color: Colors.white,
-                                        fontFamily: "OpenSans"
-
-                                    ),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
+                                        color: Colors.white,
+                                        fontFamily: "OpenSans"),
                                   ),
                                 ],
                               ),
                               const Text(
                                 "                          Till Balance : -\$504,000",
                                 style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                  color: Colors.white,
-                                    fontFamily: "OpenSans"
-
-                                ),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                    color: Colors.white,
+                                    fontFamily: "OpenSans"),
                               ),
                             ],
                           ),
@@ -653,16 +671,20 @@ class _OpenAccountState extends State<OpenAccount> {
                 ),
               ),
             ),
-            const SizedBox(height: 20,),
-            const Text("Please Fill The Following",
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 20,
+            const SizedBox(
+              height: 20,
+            ),
+            const Text(
+              "Please Fill The Following",
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 20,
                 fontFamily: "OpenSans",
+              ),
             ),
+            const SizedBox(
+              height: 20,
             ),
-            const SizedBox(height: 20,),
-
             Column(
               children: <Widget>[
                 Container(
@@ -675,11 +697,10 @@ class _OpenAccountState extends State<OpenAccount> {
                     decoration: InputDecoration(
                       hintText: "  First Name",
                       hintStyle: TextStyle(
-                        color: Colors.black,
-                        letterSpacing: 0.0,
-                        fontSize: 15,
-                          fontFamily: "OpenSans"
-                      ),
+                          color: Colors.black,
+                          letterSpacing: 0.0,
+                          fontSize: 15,
+                          fontFamily: "OpenSans"),
                       border: InputBorder.none,
                       // prefixIcon:  Padding(
                       //   padding: const EdgeInsets.all(0),
@@ -699,7 +720,6 @@ class _OpenAccountState extends State<OpenAccount> {
                 ),
                 Container(
                   width: 350,
-
                   decoration: BoxDecoration(
                     color: Colors.grey.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(0),
@@ -708,11 +728,10 @@ class _OpenAccountState extends State<OpenAccount> {
                     decoration: InputDecoration(
                       hintText: "  Account Number",
                       hintStyle: TextStyle(
-                        color: Colors.black,
-                        letterSpacing: 0.0,
-                        fontSize: 15,
-                          fontFamily: "OpenSans"
-                      ),
+                          color: Colors.black,
+                          letterSpacing: 0.0,
+                          fontSize: 15,
+                          fontFamily: "OpenSans"),
                       // prefixIcon:  Padding(
                       //   padding: EdgeInsets.all(0),
                       //   child: Icon(
@@ -766,238 +785,249 @@ class _OpenAccountState extends State<OpenAccount> {
                     ),
                   ),
                 ),
-                SizedBox(height: 150,),
-                Container(
-                  height: 40,
-                  width: 350,
-                  decoration: BoxDecoration(
-                    // ignore: prefer_const_constructors
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      // 10% of the width, so there are ten blinds.
-                      // ignore: prefer_const_literals_to_create_immutables
-                      colors: <Color>[
-                        kPrimaryColor,
-                        kSecondaryColor,
-                      ], // red to yellow
-                      tileMode: TileMode
-                          .repeated, // repeats the gradient over the canvas
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
-                    },
-                    child: const Center(
-                      child: Text(
-                        'BACK TO MENU',
-                        style: TextStyle(
-                          color: Colors.white,
-                          letterSpacing: 3.0,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                            fontFamily: "OpenSans"
-                        ),
-                      ),
-                    ),
-                  ),
+                const SizedBox(
+                  height: 150,
+                ),
+                FutureBuilder(
+                  future: getSharedData(),
+                  builder: (context, snapshot) {
+                    var _loginuser = snapshot.data!;
+                    print("Ararayghsb - $_loginuser");
+                    if (snapshot.hasData) {
+                      return Container(
+                          width: 320,
+                          height: 42,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            // ignore: prefer_const_constructors
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              // 10% of the width, so there are ten blinds.
+                              // ignore: prefer_const_literals_to_create_immutables
+                              colors: <Color>[
+                                kPrimaryColor,
+                                kSecondaryColor,
+                              ], // red to yellow
+                              tileMode: TileMode
+                                  .repeated, // repeats the gradient over the canvas
+                            ),
+                          ),
+                          child: InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => Home(
+                                            int.parse(_loginuser.toString()))));
+                              },
+                              child: const Center(
+                                child: Text(
+                                  "BACK",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.0,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              )));
+                    } else
+                      return CircularProgressIndicator();
+                  },
                 ),
               ],
             ),
-        ],
-      ),
-
+          ],
         ),
-      );
+      ),
+    );
 
-      // bottomNavigationBar: SingleChildScrollView(
-      //   scrollDirection: Axis.vertical,
-      //   child: BottomAppBar(
-      //     shape: const CircularNotchedRectangle(),
-      //     notchMargin: 10,
-      //     color: Colors.transparent,
-      //     child: Container(
-      //       height: 40,
-      //       decoration: const BoxDecoration(
-      //         gradient: LinearGradient(
-      //           begin: Alignment.topLeft,
-      //           end: Alignment.bottomRight,
-      //           colors: <Color>[
-      //             Color(0xff403109),
-      //             Color(0xff211b0b),
-      //           ],
-      //         ),
-      //         borderRadius: BorderRadius.only(
-      //           topLeft: Radius.circular(20),
-      //           topRight: Radius.circular(20),
-      //         ),
-      //       ),
-      //       child: Row(
-      //         children: <Widget>[
-      //           const SizedBox(
-      //             width: 10,
-      //           ),
-      //           SingleChildScrollView(
-      //             scrollDirection: Axis.vertical,
-      //             child: Column(
-      //               children: <Widget>[
-      //                 const SizedBox(
-      //                   height: 0,
-      //                 ),
-      //                 IconButton(
-      //                   onPressed: () {
-      //                     Navigator.pushNamed(context, '/homee');
-      //                   },
-      //                   icon: const Icon(
-      //                     Icons.home,
-      //                     color: Colors.white,
-      //                   ),
-      //                   color: Colors.white,
-      //                 ),
-      //                 const Text(
-      //                   'Home',
-      //                   style: TextStyle(
-      //                     fontSize: 12,
-      //                     color: Colors.white,
-      //                     letterSpacing: 0.5,
-      //                   ),
-      //                 ),
-      //               ],
-      //             ),
-      //           ),
-      //           const SizedBox(
-      //             width: 40,
-      //           ),
-      //           SingleChildScrollView(
-      //             scrollDirection: Axis.vertical,
-      //             child: Column(
-      //               children: <Widget>[
-      //                 const SizedBox(
-      //                   height: 0,
-      //                 ),
-      //                 IconButton(
-      //                   onPressed: () {
-      //                     Navigator.pushNamed(context, '/bills');
-      //                   },
-      //                   icon: const Icon(
-      //                     Icons.ad_units,
-      //                   ),
-      //                   color: Colors.orange,
-      //                 ),
-      //                 Text(
-      //                   'Menu',
-      //                   style: TextStyle(
-      //                     fontSize: 11,
-      //                     color: Colors.orange,
-      //                     letterSpacing: 0,
-      //                     fontWeight: FontWeight.bold,
-      //                   ),
-      //                 ),
-      //               ],
-      //             ),
-      //           ),
-      //           const SizedBox(
-      //             width: 33,
-      //           ),
-      //           SingleChildScrollView(
-      //             scrollDirection: Axis.vertical,
-      //             child: Column(
-      //               children: <Widget>[
-      //                 const SizedBox(
-      //                   height: 0,
-      //                 ),
-      //                 IconButton(
-      //                   onPressed: () {},
-      //                   icon: const Icon(
-      //                     Icons.scanner_sharp,
-      //                   ),
-      //                   color: Colors.white,
-      //                 ),
-      //                 Text(
-      //                   'Scan',
-      //                   style: TextStyle(
-      //                     fontSize: 12,
-      //                     color: Colors.white,
-      //                     letterSpacing: 0.5,
-      //                   ),
-      //                 ),
-      //               ],
-      //             ),
-      //           ),
-      //           const SizedBox(
-      //             width: 33,
-      //           ),
-      //           SingleChildScrollView(
-      //             scrollDirection: Axis.vertical,
-      //             child: Column(
-      //               children: <Widget>[
-      //                 const SizedBox(
-      //                   height: 0,
-      //                 ),
-      //                 IconButton(
-      //                   onPressed: () {
-      //                     Navigator.pushNamed(context, '/support');
-      //                   },
-      //                   icon: const Icon(
-      //                     Icons.headset_mic_outlined,
-      //                   ),
-      //                   color: Colors.white,
-      //                 ),
-      //                 Text(
-      //                   'Support',
-      //                   style: TextStyle(
-      //                     fontSize: 12,
-      //                     color: Colors.white,
-      //                     letterSpacing: 0.5,
-      //                   ),
-      //                 ),
-      //               ],
-      //             ),
-      //           ),
-      //           const SizedBox(
-      //             width: 30,
-      //           ),
-      //           SingleChildScrollView(
-      //             scrollDirection: Axis.vertical,
-      //             child: Column(
-      //               children: <Widget>[
-      //                 const SizedBox(
-      //                   height: 0,
-      //                 ),
-      //                 IconButton(
-      //                   onPressed: () {},
-      //                   icon: const Icon(
-      //                     Icons.manage_accounts,
-      //                   ),
-      //                   color: Colors.white,
-      //                 ),
-      //                 Text(
-      //                   'Profile',
-      //                   style: TextStyle(
-      //                     fontSize: 12,
-      //                     color: Colors.white,
-      //                     letterSpacing: 0.5,
-      //                   ),
-      //                 ),
-      //               ],
-      //             ),
-      //           ),
-      //         ],
-      //       ),
-      //     ),
-      //   ),
-      // ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-      //     //getFireData();
-      //   },
-      //   child: const Icon(
-      //     Icons.add,
-      //     color: Colors.white,
-      //   ),
-      // ),
-
+    // bottomNavigationBar: SingleChildScrollView(
+    //   scrollDirection: Axis.vertical,
+    //   child: BottomAppBar(
+    //     shape: const CircularNotchedRectangle(),
+    //     notchMargin: 10,
+    //     color: Colors.transparent,
+    //     child: Container(
+    //       height: 40,
+    //       decoration: const BoxDecoration(
+    //         gradient: LinearGradient(
+    //           begin: Alignment.topLeft,
+    //           end: Alignment.bottomRight,
+    //           colors: <Color>[
+    //             Color(0xff403109),
+    //             Color(0xff211b0b),
+    //           ],
+    //         ),
+    //         borderRadius: BorderRadius.only(
+    //           topLeft: Radius.circular(20),
+    //           topRight: Radius.circular(20),
+    //         ),
+    //       ),
+    //       child: Row(
+    //         children: <Widget>[
+    //           const SizedBox(
+    //             width: 10,
+    //           ),
+    //           SingleChildScrollView(
+    //             scrollDirection: Axis.vertical,
+    //             child: Column(
+    //               children: <Widget>[
+    //                 const SizedBox(
+    //                   height: 0,
+    //                 ),
+    //                 IconButton(
+    //                   onPressed: () {
+    //                     Navigator.pushNamed(context, '/homee');
+    //                   },
+    //                   icon: const Icon(
+    //                     Icons.home,
+    //                     color: Colors.white,
+    //                   ),
+    //                   color: Colors.white,
+    //                 ),
+    //                 const Text(
+    //                   'Home',
+    //                   style: TextStyle(
+    //                     fontSize: 12,
+    //                     color: Colors.white,
+    //                     letterSpacing: 0.5,
+    //                   ),
+    //                 ),
+    //               ],
+    //             ),
+    //           ),
+    //           const SizedBox(
+    //             width: 40,
+    //           ),
+    //           SingleChildScrollView(
+    //             scrollDirection: Axis.vertical,
+    //             child: Column(
+    //               children: <Widget>[
+    //                 const SizedBox(
+    //                   height: 0,
+    //                 ),
+    //                 IconButton(
+    //                   onPressed: () {
+    //                     Navigator.pushNamed(context, '/bills');
+    //                   },
+    //                   icon: const Icon(
+    //                     Icons.ad_units,
+    //                   ),
+    //                   color: Colors.orange,
+    //                 ),
+    //                 Text(
+    //                   'Menu',
+    //                   style: TextStyle(
+    //                     fontSize: 11,
+    //                     color: Colors.orange,
+    //                     letterSpacing: 0,
+    //                     fontWeight: FontWeight.bold,
+    //                   ),
+    //                 ),
+    //               ],
+    //             ),
+    //           ),
+    //           const SizedBox(
+    //             width: 33,
+    //           ),
+    //           SingleChildScrollView(
+    //             scrollDirection: Axis.vertical,
+    //             child: Column(
+    //               children: <Widget>[
+    //                 const SizedBox(
+    //                   height: 0,
+    //                 ),
+    //                 IconButton(
+    //                   onPressed: () {},
+    //                   icon: const Icon(
+    //                     Icons.scanner_sharp,
+    //                   ),
+    //                   color: Colors.white,
+    //                 ),
+    //                 Text(
+    //                   'Scan',
+    //                   style: TextStyle(
+    //                     fontSize: 12,
+    //                     color: Colors.white,
+    //                     letterSpacing: 0.5,
+    //                   ),
+    //                 ),
+    //               ],
+    //             ),
+    //           ),
+    //           const SizedBox(
+    //             width: 33,
+    //           ),
+    //           SingleChildScrollView(
+    //             scrollDirection: Axis.vertical,
+    //             child: Column(
+    //               children: <Widget>[
+    //                 const SizedBox(
+    //                   height: 0,
+    //                 ),
+    //                 IconButton(
+    //                   onPressed: () {
+    //                     Navigator.pushNamed(context, '/support');
+    //                   },
+    //                   icon: const Icon(
+    //                     Icons.headset_mic_outlined,
+    //                   ),
+    //                   color: Colors.white,
+    //                 ),
+    //                 Text(
+    //                   'Support',
+    //                   style: TextStyle(
+    //                     fontSize: 12,
+    //                     color: Colors.white,
+    //                     letterSpacing: 0.5,
+    //                   ),
+    //                 ),
+    //               ],
+    //             ),
+    //           ),
+    //           const SizedBox(
+    //             width: 30,
+    //           ),
+    //           SingleChildScrollView(
+    //             scrollDirection: Axis.vertical,
+    //             child: Column(
+    //               children: <Widget>[
+    //                 const SizedBox(
+    //                   height: 0,
+    //                 ),
+    //                 IconButton(
+    //                   onPressed: () {},
+    //                   icon: const Icon(
+    //                     Icons.manage_accounts,
+    //                   ),
+    //                   color: Colors.white,
+    //                 ),
+    //                 Text(
+    //                   'Profile',
+    //                   style: TextStyle(
+    //                     fontSize: 12,
+    //                     color: Colors.white,
+    //                     letterSpacing: 0.5,
+    //                   ),
+    //                 ),
+    //               ],
+    //             ),
+    //           ),
+    //         ],
+    //       ),
+    //     ),
+    //   ),
+    // ),
+    // floatingActionButton: FloatingActionButton(
+    //   onPressed: () {
+    //     //getFireData();
+    //   },
+    //   child: const Icon(
+    //     Icons.add,
+    //     color: Colors.white,
+    //   ),
+    // ),
   }
 }

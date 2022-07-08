@@ -197,7 +197,9 @@ class _SignUpState extends State<SignUp> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 20,),
+                    const SizedBox(
+                      height: 20,
+                    ),
                     TextField(
                       controller: coreC,
                       //controller: emailC,
@@ -287,7 +289,9 @@ class _SignUpState extends State<SignUp> {
             child: InkWell(
               onTap: buttonActive
                   ? () {
-                      if (emailC.text.isNotEmpty && phoneC.text.isNotEmpty && coreC.text.isNotEmpty) {
+                      if (emailC.text.isNotEmpty &&
+                          phoneC.text.isNotEmpty &&
+                          coreC.text.isNotEmpty) {
                         signUp();
                         emailC.clear();
                         phoneC.clear();
@@ -316,8 +320,8 @@ class _SignUpState extends State<SignUp> {
           ),
           InkWell(
             onTap: () {
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => const Login()));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const Login()));
             },
             child: const Text(
               "BACK",
@@ -358,21 +362,19 @@ class _SignUpState extends State<SignUp> {
       showMessage("Network error occured...");
     } else {
       if (object.responseCode == 200) {
-        Navigator.pop(context);
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => CheckMessage()));
-        if (bodyT["status"] == "Successful") {
+        if (bodyT["responseMessage"] == "Success") {
+          print("seyiara this is skkk");
           setState(() {
             emailError = false;
             showloading = false;
           });
-          UserRegistration userRegistration =
-              UserRegistration.fromJson(bodyT["data"]);
+          UserRegistration userRegistration = UserRegistration.fromJson(bodyT);
           Provider.of<ServiceClass>(context, listen: false)
               .notifySignin(userRegistration);
           print(userRegistration);
-          //Navigator.pop(context);
-          //Navigator.push(context, MaterialPageRoute(builder: (context) => CheckMessage()));
+          Navigator.pop(context);
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const CheckMessage()));
         }
       } else {
         if (object.responseCode == 404) {
@@ -384,7 +386,7 @@ class _SignUpState extends State<SignUp> {
           setState(() {
             emailError = true;
           });
-          showMessage("Incorrect Password, Please try again");
+          showMessage("Error encountered...");
         } else {
           setState(() {
             showloading = false;

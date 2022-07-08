@@ -19,9 +19,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:teller/tellerlist.dart';
 import 'package:teller/tellerrequest.dart';
 
-
-
-
 class Teller extends StatefulWidget {
   const Teller({Key? key}) : super(key: key);
   @override
@@ -29,7 +26,36 @@ class Teller extends StatefulWidget {
 }
 
 class _TellerState extends State<Teller> {
- List<MobileTellerRequestList> contain = [];
+  getSharedData() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String? username = sharedPreferences.getString("username");
+    print(username);
+    //var seyi = MobileTellerRequestList(loginUserId: int.parse(username!));
+    return username;
+  }
+
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  showMessage(String message,
+      [Duration duration = const Duration(seconds: 4)]) {
+    _scaffoldKey.currentState!.showSnackBar(SnackBar(
+      content: Text(message),
+      duration: duration,
+      action: SnackBarAction(
+        label: "CLOSE",
+        onPressed: () {
+          _scaffoldKey.currentState!.removeCurrentSnackBar();
+        },
+      ),
+    ));
+  }
+
+  GetBalance? customerBalance;
+  bool showData = false;
+  bool showBalance = false;
+  bool loading = false;
+  bool userData = true;
+  List<MobileTellerRequestList> contain = [];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,7 +100,7 @@ class _TellerState extends State<Teller> {
                     kSecondaryColor,
                   ], // red to yellow
                   tileMode:
-                  TileMode.repeated, // repeats the gradient over the canvas
+                      TileMode.repeated, // repeats the gradient over the canvas
                 ),
                 // ignore: prefer_const_literals_to_create_immutables
                 boxShadow: [
@@ -147,7 +173,6 @@ class _TellerState extends State<Teller> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: const [
-
                                 Text(
                                   "                            Calendar Date : May 5, 2022",
                                   style: TextStyle(
@@ -199,18 +224,18 @@ class _TellerState extends State<Teller> {
                       "Teller Name : Seyi Fatunmole",
                       style: TextStyle(
                         fontFamily: "OpenSans",
-
                         color: kPrimaryColor,
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(width: 110,),
+                    SizedBox(
+                      width: 110,
+                    ),
                     Text(
                       "Teller ID : 1025",
                       style: TextStyle(
                         fontFamily: "OpenSans",
-
                         color: kPrimaryColor,
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
@@ -317,7 +342,6 @@ class _TellerState extends State<Teller> {
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-
                 // Text(
                 //   "  MENU",
                 //   style: TextStyle(
@@ -348,7 +372,7 @@ class _TellerState extends State<Teller> {
                     kSecondaryColor,
                   ], // red to yellow
                   tileMode:
-                  TileMode.repeated, // repeats the gradient over the canvas
+                      TileMode.repeated, // repeats the gradient over the canvas
                 ),
               ),
               child: InkWell(
@@ -394,13 +418,15 @@ class _TellerState extends State<Teller> {
                     kSecondaryColor,
                   ], // red to yellow
                   tileMode:
-                  TileMode.repeated, // repeats the gradient over the canvas
+                      TileMode.repeated, // repeats the gradient over the canvas
                 ),
               ),
               child: InkWell(
                 onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => const Security()));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const Security()));
                 },
                 child: Row(
                   children: const <Widget>[
@@ -443,7 +469,7 @@ class _TellerState extends State<Teller> {
                     kSecondaryColor,
                   ], // red to yellow
                   tileMode:
-                  TileMode.repeated, // repeats the gradient over the canvas
+                      TileMode.repeated, // repeats the gradient over the canvas
                 ),
               ),
               child: InkWell(
@@ -477,8 +503,8 @@ class _TellerState extends State<Teller> {
               height: 5,
             ),
             ...contain.map((e) => containerCustom(
-              e,
-            )),
+                  e,
+                )),
 
             Container(
               height: 50,
@@ -496,13 +522,13 @@ class _TellerState extends State<Teller> {
                     kSecondaryColor,
                   ], // red to yellow
                   tileMode:
-                  TileMode.repeated, // repeats the gradient over the canvas
+                      TileMode.repeated, // repeats the gradient over the canvas
                 ),
               ),
               child: InkWell(
                 onTap: () {
-                   Navigator.push(
-                       context, MaterialPageRoute(builder: (context) => TellerRequest()));
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => TellerRequest()));
                   //getTeller();
                 },
                 child: Row(
@@ -528,7 +554,9 @@ class _TellerState extends State<Teller> {
               ),
             ),
 
-            const SizedBox(height: 5,),
+            const SizedBox(
+              height: 5,
+            ),
             Container(
               height: 50,
               width: 380,
@@ -545,7 +573,7 @@ class _TellerState extends State<Teller> {
                     kSecondaryColor,
                   ], // red to yellow
                   tileMode:
-                  TileMode.repeated, // repeats the gradient over the canvas
+                      TileMode.repeated, // repeats the gradient over the canvas
                 ),
               ),
               child: InkWell(
@@ -572,7 +600,9 @@ class _TellerState extends State<Teller> {
                 ),
               ),
             ),
-            const SizedBox(height: 5,),
+            const SizedBox(
+              height: 5,
+            ),
             Container(
               height: 50,
               width: 380,
@@ -589,7 +619,7 @@ class _TellerState extends State<Teller> {
                     kSecondaryColor,
                   ], // red to yellow
                   tileMode:
-                  TileMode.repeated, // repeats the gradient over the canvas
+                      TileMode.repeated, // repeats the gradient over the canvas
                 ),
               ),
               child: InkWell(
@@ -707,43 +737,94 @@ class _TellerState extends State<Teller> {
             const SizedBox(
               height: 120,
             ),
-            Container(
-              width: 320,
-              height: 42,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                // ignore: prefer_const_constructors
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  // 10% of the width, so there are ten blinds.
-                  // ignore: prefer_const_literals_to_create_immutables
-                  colors: <Color>[
-                    kPrimaryColor,
-                    kSecondaryColor,
-                  ], // red to yellow
-                  tileMode:
-                  TileMode.repeated, // repeats the gradient over the canvas
-                ),
-              ),
-              child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                      context, MaterialPageRoute(builder: (context) => Home()));
-                },
-                child: const Center(
-                  child: Text(
-                    "BACK",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.0,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ),
+            FutureBuilder(
+              future: getSharedData(),
+              builder: (context, snapshot) {
+                var _loginuser = snapshot.data!;
+                print("Ararayghsb - $_loginuser");
+                if (snapshot.hasData) {
+                  return Container(
+                      width: 320,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        // ignore: prefer_const_constructors
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          // 10% of the width, so there are ten blinds.
+                          // ignore: prefer_const_literals_to_create_immutables
+                          colors: <Color>[
+                            kPrimaryColor,
+                            kSecondaryColor,
+                          ], // red to yellow
+                          tileMode: TileMode
+                              .repeated, // repeats the gradient over the canvas
+                        ),
+                      ),
+                      child: InkWell(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Home(
+                                        int.parse(_loginuser.toString()))));
+                          },
+                          child: const Center(
+                            child: Text(
+                              "BACK",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.0,
+                                fontSize: 12,
+                              ),
+                            ),
+                          )));
+                } else
+                  return CircularProgressIndicator();
+              },
             ),
+            // Container(
+            //   width: 320,
+            //   height: 42,
+            //   decoration: BoxDecoration(
+            //     borderRadius: BorderRadius.circular(10),
+            //     // ignore: prefer_const_constructors
+            //     gradient: LinearGradient(
+            //       begin: Alignment.topLeft,
+            //       end: Alignment.bottomRight,
+            //       // 10% of the width, so there are ten blinds.
+            //       // ignore: prefer_const_literals_to_create_immutables
+            //       colors: <Color>[
+            //         kPrimaryColor,
+            //         kSecondaryColor,
+            //       ], // red to yellow
+            //       tileMode:
+            //           TileMode.repeated, // repeats the gradient over the canvas
+            //     ),
+            //   ),
+            //   child: InkWell(
+            //     onTap: () {
+            //       Navigator.push(
+            //           context,
+            //           MaterialPageRoute(
+            //               builder: (context) =>
+            //                   Home(customerBalance!.loginUserId!)));
+            //     },
+            //     child: const Center(
+            //       child: Text(
+            //         "BACK",
+            //         style: TextStyle(
+            //           color: Colors.white,
+            //           fontWeight: FontWeight.bold,
+            //           letterSpacing: 1.0,
+            //           fontSize: 12,
+            //         ),
+            //       ),
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),
@@ -937,55 +1018,52 @@ class _TellerState extends State<Teller> {
     );
   }
 
-
   Widget containerCustom(MobileTellerRequestList mylist) => Container(
-    height: 50,
-    width: 380,
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(15),
-      // ignore: prefer_const_constructors
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        // 10% of the width, so there are ten blinds.
-        // ignore: prefer_const_literals_to_create_immutables
-        colors: <Color>[
-          kPrimaryColor,
-          kSecondaryColor,
-        ], // red to yellow
-        tileMode:
-        TileMode.repeated, // repeats the gradient over the canvas
-      ),
-    ),
-    child: InkWell(
-      onTap: () {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => TellerRequest()));
-        //getTeller();
-      },
-      child: Row(
-        children: const <Widget>[
-          SizedBox(
-            width: 20,
+        height: 50,
+        width: 380,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          // ignore: prefer_const_constructors
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            // 10% of the width, so there are ten blinds.
+            // ignore: prefer_const_literals_to_create_immutables
+            colors: <Color>[
+              kPrimaryColor,
+              kSecondaryColor,
+            ], // red to yellow
+            tileMode: TileMode.repeated, // repeats the gradient over the canvas
           ),
-          Icon(
-            Icons.wifi,
+        ),
+        child: InkWell(
+          onTap: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => TellerRequest()));
+            //getTeller();
+          },
+          child: Row(
+            children: const <Widget>[
+              SizedBox(
+                width: 20,
+              ),
+              Icon(
+                Icons.wifi,
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              Text(
+                "Wallet Fund Request List",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.white,
+                ),
+              ),
+            ],
           ),
-          SizedBox(
-            width: 10,
-          ),
-          Text(
-            "Wallet Fund Request List",
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.white,
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
-
+        ),
+      );
 
   void getTeller(int loginUserId) {
     print("hello seyi araoluwa");

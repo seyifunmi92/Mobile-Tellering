@@ -8,7 +8,8 @@ import 'package:teller/textstyle.dart';
 import 'package:teller/login.dart';
 import 'package:teller/home.dart';
 import 'package:teller/cashDepostit.dart';
-
+import 'package:teller/models.dart';
+import 'checkbalance.dart';
 
 class CustomerDetails extends StatefulWidget {
   const CustomerDetails({Key? key}) : super(key: key);
@@ -18,9 +19,31 @@ class CustomerDetails extends StatefulWidget {
 }
 
 class _CustomerDetailsState extends State<CustomerDetails> {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  showMessage(String message,
+      [Duration duration = const Duration(seconds: 4)]) {
+    _scaffoldKey.currentState!.showSnackBar(SnackBar(
+      content: Text(message),
+      duration: duration,
+      action: SnackBarAction(
+        label: "CLOSE",
+        onPressed: () {
+          _scaffoldKey.currentState!.removeCurrentSnackBar();
+        },
+      ),
+    ));
+  }
+
+  GetBalance? customerBalance;
+  bool showData = false;
+  bool showBalance = false;
+  bool loading = false;
+  bool userData = true;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text("Customer Details"),
@@ -49,18 +72,23 @@ class _CustomerDetailsState extends State<CustomerDetails> {
                     children: const [
                       CircleAvatar(
                         radius: 40,
-                        backgroundImage: AssetImage("lib/images/saleoimage.jpeg"),
-
+                        backgroundImage:
+                            AssetImage("lib/images/saleoimage.jpeg"),
                       ),
-                       SizedBox(height: 10,),
-                       Text("SELECT ACCOUNT FOR DEPOSIT",
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        "SELECT ACCOUNT FOR DEPOSIT",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: kPrimaryColor,
                           fontSize: 20,
                         ),
                       ),
-                       SizedBox(height: 20,),
+                      SizedBox(
+                        height: 20,
+                      ),
 
                       // Container(
                       //   width: 260,
@@ -140,14 +168,19 @@ class _CustomerDetailsState extends State<CustomerDetails> {
                   //     ),
                   //   ),
                   // ),
-                  const SizedBox(height: 0,),
-                  const Text("Customer Name : Oluwatobi Adeleke",
+                  const SizedBox(
+                    height: 0,
+                  ),
+                  const Text(
+                    "Customer Name : Oluwatobi Adeleke",
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 30,),
+                  const SizedBox(
+                    height: 30,
+                  ),
 
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -159,136 +192,149 @@ class _CustomerDetailsState extends State<CustomerDetails> {
                       height: 260,
                       width: 330,
                       child: Column(
-                       children: [
-                         Container(
-                           width: 330,
-                           height: 80,
-                           child: Column(
-                             children: [
-                               const SizedBox(height: 10,),
-                               Row(
-                                 children : [
-                                   const SizedBox( width: 20,),
+                        children: [
+                          Container(
+                            width: 330,
+                            height: 80,
+                            child: Column(
+                              children: [
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Row(children: [
+                                  const SizedBox(
+                                    width: 20,
+                                  ),
                                   InkWell(
-                                    onTap: (){},
+                                    onTap: () {},
                                     child: const CircleAvatar(
-                                                             backgroundColor: Colors.white,
-                                                             radius: 5,
-                                                           ),
-                                                         ),
-                                   const SizedBox(width: 20,),
-                                   Column(
-                                     children: const [
-
-                                       Text("Customer Account 1 : 012345738",
-                                         style: TextStyle(
-                                           fontSize: 15,
-                                           fontWeight: FontWeight.bold,
-                                         ),
-                                       ),
-                                       Text("Account Balance : \$200",
-                                         style: TextStyle(
-                                           fontSize: 15,
-                                           fontWeight: FontWeight.bold,
-                                         ),
-                                       ),
-                                     ],
-                                   )
-
-                                    ]
-                               ),
-                             ],
-                           ),
-                           color: Colors.grey,
-                         ),
-                         SizedBox(height: 10,),
-                         Container(
-                           width: 330,
-                           height: 80,
-                           child: Column(
-                             children: [
-                               const SizedBox(height: 10,),
-                               Row(
-                                   children : [
-                                     const SizedBox( width: 20,),
-                                     InkWell(
-                                       onTap: (){},
-                                       child: const CircleAvatar(
-                                         backgroundColor: Colors.white,
-                                         radius: 5,
-                                       ),
-                                     ),
-                                     const SizedBox(width: 20,),
-                                     Column(
-                                       children: const [
-
-                                         Text("Customer Account 2 : 012345738",
-                                           style: TextStyle(
-                                             fontSize: 15,
-                                             fontWeight: FontWeight.bold,
-                                           ),
-                                         ),
-                                         Text("Account Balance : \$600",
-                                           style: TextStyle(
-                                             fontSize: 15,
-                                             fontWeight: FontWeight.bold,
-                                           ),
-                                         ),
-                                       ],
-                                     )
-
-                                   ]
-                               ),
-                             ],
-                           ),
-                           color: Colors.grey,
-                         ),
-                         SizedBox(height: 10,),
-
-                         Container(
-                           width: 330,
-                           height: 80,
-                           child: Column(
-                             children: [
-                               const SizedBox(height: 10,),
-                               Row(
-                                   children : [
-                                     const SizedBox( width: 20,),
-                                     InkWell(
-                                       onTap: (){},
-                                       child: const CircleAvatar(
-                                         backgroundColor: Colors.white,
-                                         radius: 5,
-                                       ),
-                                     ),
-                                     const SizedBox(width: 20,),
-                                     Column(
-                                       children: const [
-
-                                         Text("Customer Account 3 : 012345738",
-                                           style: TextStyle(
-                                             fontSize: 15,
-                                             fontWeight: FontWeight.bold,
-                                           ),
-                                         ),
-                                         Text("Account Balance : \$100",
-                                           style: TextStyle(
-                                             fontSize: 15,
-                                             fontWeight: FontWeight.bold,
-                                           ),
-                                         ),
-                                       ],
-                                     )
-
-                                   ]
-                               ),
-                             ],
-                           ),
-                           color: Colors.grey,
-                         ),
-
-                       ],
-
+                                      backgroundColor: Colors.white,
+                                      radius: 5,
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 20,
+                                  ),
+                                  Column(
+                                    children: const [
+                                      Text(
+                                        "Customer Account 1 : 012345738",
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        "Account Balance : \$200",
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                ]),
+                              ],
+                            ),
+                            color: Colors.grey,
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Container(
+                            width: 330,
+                            height: 80,
+                            child: Column(
+                              children: [
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Row(children: [
+                                  const SizedBox(
+                                    width: 20,
+                                  ),
+                                  InkWell(
+                                    onTap: () {},
+                                    child: const CircleAvatar(
+                                      backgroundColor: Colors.white,
+                                      radius: 5,
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 20,
+                                  ),
+                                  Column(
+                                    children: const [
+                                      Text(
+                                        "Customer Account 2 : 012345738",
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        "Account Balance : \$600",
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                ]),
+                              ],
+                            ),
+                            color: Colors.grey,
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Container(
+                            width: 330,
+                            height: 80,
+                            child: Column(
+                              children: [
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Row(children: [
+                                  const SizedBox(
+                                    width: 20,
+                                  ),
+                                  InkWell(
+                                    onTap: () {},
+                                    child: const CircleAvatar(
+                                      backgroundColor: Colors.white,
+                                      radius: 5,
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 20,
+                                  ),
+                                  Column(
+                                    children: const [
+                                      Text(
+                                        "Customer Account 3 : 012345738",
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        "Account Balance : \$100",
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                ]),
+                              ],
+                            ),
+                            color: Colors.grey,
+                          ),
+                        ],
                       ),
                     ),
                     // Container(
@@ -794,7 +840,6 @@ class _CustomerDetailsState extends State<CustomerDetails> {
                     //   ),
                     //   color: Colors.black26,
                     // ),
-
                   ),
                   //       Container(
                   //         decoration: BoxDecoration(
@@ -827,11 +872,12 @@ class _CustomerDetailsState extends State<CustomerDetails> {
                   //     ],
                   //   ),
                   // ),
-                  SizedBox(height: 20,),
+                  SizedBox(
+                    height: 20,
+                  ),
 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-
                     children: [
                       Container(
                         height: 40,
@@ -848,13 +894,16 @@ class _CustomerDetailsState extends State<CustomerDetails> {
                               kPrimaryColor,
                               kSecondaryColor,
                             ], // red to yellow
-                            tileMode:
-                            TileMode.repeated, // repeats the gradient over the canvas
+                            tileMode: TileMode
+                                .repeated, // repeats the gradient over the canvas
                           ),
                         ),
                         child: InkWell(
                           onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => CashDeposit()));
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => CashDeposit()));
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -882,7 +931,9 @@ class _CustomerDetailsState extends State<CustomerDetails> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 30,),
+                      const SizedBox(
+                        width: 30,
+                      ),
                       // SizedBox(height: 20,),
 
                       // Container(
@@ -935,7 +986,9 @@ class _CustomerDetailsState extends State<CustomerDetails> {
                 ],
               ),
             ),
-            const SizedBox(height: 120,),
+            const SizedBox(
+              height: 120,
+            ),
             Container(
               height: 40,
               width: 350,
@@ -952,18 +1005,23 @@ class _CustomerDetailsState extends State<CustomerDetails> {
                     kSecondaryColor,
                   ], // red to yellow
                   tileMode:
-                  TileMode.repeated, // repeats the gradient over the canvas
+                      TileMode.repeated, // repeats the gradient over the canvas
                 ),
               ),
               child: InkWell(
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              Home(customerBalance!.loginUserId!)));
                   // Navigator.push(context, MaterialPageRoute(builder:(context)  => Home()));
-
                 },
                 child: Row(
                   children: const <Widget>[
-                    SizedBox(width: 120,),
+                    SizedBox(
+                      width: 120,
+                    ),
 
                     // Icon(
                     //   Icons.atm_sharp,

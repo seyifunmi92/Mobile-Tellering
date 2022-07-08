@@ -18,12 +18,9 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:teller/tellerrequest.dart';
 
-
-
 class CheckMessage extends StatefulWidget {
-
- //final UserRegistration userRegistration;
-  const CheckMessage( {Key? key}) : super(key: key);
+  //final UserRegistration userRegistration;
+  const CheckMessage({Key? key}) : super(key: key);
 
   @override
   _CheckMessageState createState() => _CheckMessageState();
@@ -35,44 +32,51 @@ class _CheckMessageState extends State<CheckMessage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text("Confirmation Page",
+        title: const Text(
+          "Confirmation Page",
           style: TextStyle(
             fontFamily: "OpenSans",
-
           ),
         ),
         centerTitle: true,
       ),
-
       body: Column(
-        children:  [
-          const SizedBox(height: 50,),
-          const Center(child: Text("Check to your email to get your user Id and password",
-          style: TextStyle(
-            fontFamily: "OpenSans",
-            color: Colors.blueGrey,
-            fontSize: 15,
+        children: [
+          const SizedBox(
+            height: 50,
           ),
+          const Center(
+              child: Text(
+            "Check your email to get your user Id and password",
+            style: TextStyle(
+              fontFamily: "OpenSans",
+              color: Colors.blueGrey,
+              fontSize: 15,
+            ),
           )),
-
-          const SizedBox(height: 50,),
-
+          const SizedBox(
+            height: 50,
+          ),
           GestureDetector(
-            onTap: (){},
-
-            child:  Row(
+            onTap: () {},
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: const [
-                Text("I didnt get the code?",
-                style: TextStyle(fontFamily: "OpenSans",
+                Text(
+                  "I didnt get the code?",
+                  style: TextStyle(
+                    fontFamily: "OpenSans",
                     color: Colors.blueGrey,
                     fontSize: 15,
+                  ),
                 ),
+                SizedBox(
+                  width: 10,
                 ),
-                SizedBox(width: 10,),
-
-                Text("Resend Message?",
-                  style: TextStyle(fontFamily: "OpenSans",
+                Text(
+                  "Resend Message?",
+                  style: TextStyle(
+                    fontFamily: "OpenSans",
                     color: Colors.black,
                     fontSize: 15,
                   ),
@@ -80,14 +84,12 @@ class _CheckMessageState extends State<CheckMessage> {
               ],
             ),
           ),
-
-          const SizedBox(height: 50,),
-
-
+          const SizedBox(
+            height: 50,
+          ),
           Container(
             height: 40,
             width: 350,
-
             decoration: BoxDecoration(
               // ignore: prefer_const_constructors
               gradient: LinearGradient(
@@ -99,16 +101,16 @@ class _CheckMessageState extends State<CheckMessage> {
                   kPrimaryColor,
                   kSecondaryColor,
                 ], // red to yellow
-                tileMode: TileMode
-                    .repeated, // repeats the gradient over the canvas
+                tileMode:
+                    TileMode.repeated, // repeats the gradient over the canvas
               ),
               borderRadius: BorderRadius.circular(5),
             ),
             child: InkWell(
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>const Login()));
-
-              } ,
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => const Login()));
+              },
               child: const Center(
                 child: Text(
                   'PROCEED TO LOGIN',
@@ -123,18 +125,20 @@ class _CheckMessageState extends State<CheckMessage> {
               ),
             ),
           ),
-
-          const SizedBox(height: 420,),
+          const SizedBox(
+            height: 420,
+          ),
           GestureDetector(
-            onTap: (){
-              Navigator.push(context, MaterialPageRoute(builder: (context)=> SignUp()));
-
+            onTap: () {
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => SignUp()));
             },
-
-            child:  Column(
+            child: Column(
               children: const [
-                Text("Back",
-                  style: TextStyle(fontFamily: "OpenSans",
+                Text(
+                  "Back",
+                  style: TextStyle(
+                    fontFamily: "OpenSans",
                     color: Colors.blueGrey,
                     fontSize: 15,
                   ),

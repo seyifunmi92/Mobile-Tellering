@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:teller/checkmessage.dart';
+import 'package:teller/pref.dart';
 import 'package:teller/succes.dart';
 import 'package:teller/walletfund.dart';
 import 'package:teller/welcome.dart';
@@ -17,10 +18,9 @@ import 'package:flutter_blue/flutter_blue.dart';
 import 'package:esc_pos_utils/esc_pos_utils.dart';
 
 void main() => runApp(ChangeNotifierProvider(
-  create: (context) => ServiceClass(),
+      create: (context) => ServiceClass(),
       child: const MyApp(),
     ));
-
 
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);

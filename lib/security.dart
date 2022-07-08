@@ -10,8 +10,7 @@ import 'package:teller/home.dart';
 import 'package:teller/teller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
-
+import 'models.dart';
 
 class Security extends StatefulWidget {
   const Security({Key? key}) : super(key: key);
@@ -21,6 +20,27 @@ class Security extends StatefulWidget {
 }
 
 class _SecurityState extends State<Security> {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  showMessage(String message,
+      [Duration duration = const Duration(seconds: 4)]) {
+    _scaffoldKey.currentState!.showSnackBar(SnackBar(
+      content: Text(message),
+      duration: duration,
+      action: SnackBarAction(
+        label: "CLOSE",
+        onPressed: () {
+          _scaffoldKey.currentState!.removeCurrentSnackBar();
+        },
+      ),
+    ));
+  }
+
+  GetBalance? customerBalance;
+  bool showData = false;
+  bool showBalance = false;
+  bool loading = false;
+  bool userData = true;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,24 +73,24 @@ class _SecurityState extends State<Security> {
               fontSize: 20,
               fontWeight: FontWeight.bold,
               fontFamily: "OpenSans",
-
             ),
           ),
           const SizedBox(
             height: 150,
           ),
 
-          Text("Enter Secret Answer to Secret Question",
-          style: TextStyle(
-            fontFamily: "OpenSans",
-
-            color: Colors.blue[900],
-            fontSize: 20,
-
+          Text(
+            "Enter Secret Answer to Secret Question",
+            style: TextStyle(
+              fontFamily: "OpenSans",
+              color: Colors.blue[900],
+              fontSize: 20,
+            ),
           ),
-          ),
 
-          SizedBox(height: 30,),
+          SizedBox(
+            height: 30,
+          ),
           Container(
             padding: const EdgeInsets.symmetric(
               horizontal: 30,
@@ -159,15 +179,17 @@ class _SecurityState extends State<Security> {
                   ),
                   child: InkWell(
                     onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder:(context)  => Home()));
-
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  Home(customerBalance!.loginUserId!)));
                     },
                     child: const Center(
                       child: Text(
                         'PROCEED',
                         style: TextStyle(
                           fontFamily: "OpenSans",
-
                           color: Colors.white,
                           letterSpacing: 3.0,
                           fontSize: 10,

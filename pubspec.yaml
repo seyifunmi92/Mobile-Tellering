@@ -74,6 +74,9 @@ flutter:
   - "lib/images/teller.jpg"
   - "lib/images/tellers.jpg"
   - "lib/images/saleoimage.jpeg"
+  - "lib/images/mobiletellera.jpg"
+  - "lib/images/tteller.jpg"
+  - "lib/images/ttteller.png"
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

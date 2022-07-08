@@ -1,56 +1,78 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:teller/models.dart';
+import 'package:teller/checkmessage.dart';
 import 'package:teller/succes.dart';
+import 'package:teller/walletfund.dart';
 import 'package:teller/welcome.dart';
 import 'package:teller/welcome.dart';
 import 'package:teller/services.dart';
 import 'package:teller/constants.dart';
 import 'package:teller/textstyle.dart';
 import 'package:teller/login.dart';
-import 'package:teller/teller.dart';
 import 'package:teller/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:teller/tellerrequest.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter_blue/flutter_blue.dart';
+import 'package:esc_pos_utils/esc_pos_utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'checkmessage.dart';
-
-class WalletFund extends StatefulWidget {
-  const WalletFund({Key? key}) : super(key: key);
+class Pref extends StatefulWidget {
+  const Pref({Key? key}) : super(key: key);
 
   @override
-  _WalletFundState createState() => _WalletFundState();
+  _PrefState createState() => _PrefState();
 }
 
-class _WalletFundState extends State<WalletFund> {
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
-  bool buttonActive = false;
-  TextEditingController loginC = TextEditingController();
-  TextEditingController amountC = TextEditingController();
-  bool networkError = false;
+class _PrefState extends State<Pref> {
+  late SharedPreferences mypref;
+  Future load() async {
+    mypref = await SharedPreferences.getInstance();
+  }
 
-  showMessage(String message,
-      [Duration duration = const Duration(seconds: 4)]) {
-    _scaffoldKey.currentState!.showSnackBar(SnackBar(
-      content: Text(message),
-      duration: duration,
-      action: SnackBarAction(
-        label: "CLOSE",
-        onPressed: () {
-          _scaffoldKey.currentState!.removeCurrentSnackBar();
-        },
-      ),
-    ));
+  save() async {
+    await load();
+    mypref.setString("email", emailC.text);
+    mypref.setString("phone", phoneC.text);
+    mypref.setString("core", coreC.text);
+    //mypref!.setInt("integer", 20);
+  }
+
+  fetch() async {
+    String myname = mypref.getString("string") ?? "";
+    int myage = mypref.getInt("integer") ?? 0;
+    String em = mypref.getString("email") ?? "";
+    print(myname);
+    print(myage);
+    print(em);
+    mypref.get("email");
+    mypref.get("phone");
+    mypref.get("core");
+  }
+
+  Delete() async {
+    mypref.remove("string");
+    mypref.remove("integer");
+  }
+
+  bool buttonActive = false;
+  TextEditingController emailC = TextEditingController();
+  TextEditingController phoneC = TextEditingController();
+  TextEditingController coreC = TextEditingController();
+  @override
+  void initState() {
+    //fetch();
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      //key: _scaffoldKey,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const Text(
-          "Wallet Fund Request",
+          "Test Data Storage",
           style: TextStyle(
             fontFamily: "OpenSans",
           ),
@@ -63,7 +85,7 @@ class _WalletFundState extends State<WalletFund> {
             height: 35,
           ),
           const Text(
-            "Please enter the following",
+            "Please enter your details below",
             style: TextStyle(
                 fontSize: 15,
                 fontFamily: "OpenSans",
@@ -75,7 +97,7 @@ class _WalletFundState extends State<WalletFund> {
             height: 40,
           ),
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: EdgeInsets.all(10),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
               color: Colors.white,
@@ -90,7 +112,7 @@ class _WalletFundState extends State<WalletFund> {
                 child: Column(
                   children: [
                     TextField(
-                      controller: loginC,
+                      controller: emailC,
                       //controller: emailC,
                       cursorColor: Colors.blue,
                       // style: kmediumTextBold(kColorBlack),
@@ -122,10 +144,9 @@ class _WalletFundState extends State<WalletFund> {
                         // }
                       },
                       decoration: const InputDecoration(
-                        hintText: "Login User Id",
+                        hintText: "Email",
                         hintStyle: TextStyle(
                           fontFamily: "OpenSans",
-
                           fontSize: 12,
                           //fontFamily: "Poppins",
                           fontWeight: FontWeight.w400,
@@ -138,22 +159,22 @@ class _WalletFundState extends State<WalletFund> {
                       height: 20,
                     ),
                     TextField(
-                      controller: amountC,
+                      controller: phoneC,
                       //controller: emailC,
                       cursorColor: Colors.blue,
                       // style: kmediumTextBold(kColorBlack),
                       keyboardType: TextInputType.number,
                       onChanged: (text2) {
-                        if (loginC.text.isNotEmpty || text2.isNotEmpty) {
+                        if (emailC.text.isNotEmpty || text2.isNotEmpty) {
                           setState(() {
                             buttonActive = true;
                           });
-                        } else if (loginC.text.isEmpty || text2.isEmpty) {
+                        } else if (emailC.text.isEmpty || text2.isEmpty) {
                           setState(() {
                             buttonActive = false;
                           });
-                        } else if (loginC.text.isNotEmpty ||
-                            amountC.text.isEmpty) {
+                        } else if (emailC.text.isNotEmpty ||
+                            phoneC.text.isEmpty) {
                           setState(() {
                             buttonActive = false;
                           });
@@ -162,7 +183,6 @@ class _WalletFundState extends State<WalletFund> {
                             buttonActive = false;
                           });
                         }
-
                         // if (text.contains("@")) {
                         //   if (text.split("@")[1].contains(".")){
                         //     setState(() {
@@ -180,7 +200,62 @@ class _WalletFundState extends State<WalletFund> {
                         // }
                       },
                       decoration: const InputDecoration(
-                        hintText: "Amount Requested",
+                        hintText: "Phone Number",
+                        hintStyle: TextStyle(
+                          fontSize: 12,
+                          fontFamily: "OpenSans",
+                          fontWeight: FontWeight.w400,
+                          //color: kColorBlack.withOpacity(.3)),
+                          //border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    TextField(
+                      controller: coreC,
+                      //controller: emailC,
+                      cursorColor: Colors.blue,
+                      // style: kmediumTextBold(kColorBlack),
+                      keyboardType: TextInputType.number,
+                      onChanged: (text2) {
+                        if (emailC.text.isNotEmpty || text2.isNotEmpty) {
+                          setState(() {
+                            buttonActive = true;
+                          });
+                        } else if (emailC.text.isEmpty || text2.isEmpty) {
+                          setState(() {
+                            buttonActive = false;
+                          });
+                        } else if (emailC.text.isNotEmpty ||
+                            phoneC.text.isEmpty) {
+                          setState(() {
+                            buttonActive = false;
+                          });
+                        } else {
+                          setState(() {
+                            buttonActive = false;
+                          });
+                        }
+                        // if (text.contains("@")) {
+                        //   if (text.split("@")[1].contains(".")){
+                        //     setState(() {
+                        //       emailIcon = "email_icon2";
+                        //     });
+                        //   }else{
+                        //     setState(() {
+                        //       emailIcon = "email_icon";
+                        //     });
+                        //   }
+                        // }else{
+                        //   setState(() {
+                        //     emailIcon = "email_icon";
+                        //   });
+                        // }
+                      },
+                      decoration: const InputDecoration(
+                        hintText: "Core Banking ID",
                         hintStyle: TextStyle(
                           fontSize: 12,
                           fontFamily: "OpenSans",
@@ -227,11 +302,14 @@ class _WalletFundState extends State<WalletFund> {
             child: InkWell(
               onTap: buttonActive
                   ? () {
-                      if (loginC.text.isNotEmpty && amountC.text.isNotEmpty) {
-                        walletFund(
-                            int.parse(loginC.text), int.parse(amountC.text));
-                        loginC.clear();
-                        amountC.clear();
+                      if (emailC.text.isNotEmpty &&
+                          phoneC.text.isNotEmpty &&
+                          coreC.text.isNotEmpty) {
+                        save();
+                        //signUp();
+                        emailC.clear();
+                        phoneC.clear();
+                        coreC.clear();
                         Future.delayed(const Duration(seconds: 5));
                         //succesfulSignUp();
                       }
@@ -252,12 +330,11 @@ class _WalletFundState extends State<WalletFund> {
             ),
           ),
           const SizedBox(
-            height: 330,
+            height: 100,
           ),
           InkWell(
             onTap: () {
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => Teller()));
+              fetch();
             },
             child: const Text(
               "BACK",
@@ -268,47 +345,18 @@ class _WalletFundState extends State<WalletFund> {
               ),
             ),
           ),
+          const SizedBox(
+            height: 20,
+          ),
+          const Text("Correvct"),
+          if (mypref != null)
+            Padding(
+              padding: EdgeInsets.all(20),
+              child: Text(
+                  "This user with email : ${mypref.get("email")} and phone number : ${mypref.get("phone")} and corebanking id : ${mypref.get("core")}"),
+            ),
         ],
       ),
     );
-  }
-
-  void walletFund(int loginUserid, int requestedamount) {
-    print("hello seyi araoluwa");
-    print("We are In teller fund now now...");
-    ServiceClass serviceClass = ServiceClass();
-    serviceClass
-        .requestTeller(loginUserid, requestedamount)
-        .then((value) => output(value));
-  }
-
-  void output(ResponseTeller _teller) {
-    var bodyT = jsonDecode(_teller.responseBody!);
-    print("we are in second haven now bro..");
-    print(_teller);
-    print(_teller.responseCode);
-    if (_teller.responseCode == 500) {
-      showMessage("Internal Server Error...");
-    } else {
-      if (_teller.responseCode == 200) {
-        Navigator.pop(context);
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => const Success()));
-        if (bodyT["responseMessage"] == "Request Placed Successfully") {
-          MobileTellerFund _mobileteller = MobileTellerFund.fromJson(bodyT);
-          Provider.of<ServiceClass>(context, listen: false)
-              .notifyTeller(_mobileteller);
-          print("Inioluwa this is the value - $_mobileteller");
-        } else {
-          if (_teller.responseCode == 404) {
-            showMessage("Error occured..Resource not found");
-          } else if (_teller.responseCode == 401) {
-            showMessage("Incorrect Password, Please try again");
-          } else {
-            showMessage("Error encountered....");
-          }
-        }
-      }
-    }
   }
 }
